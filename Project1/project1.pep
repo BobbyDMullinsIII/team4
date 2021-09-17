@@ -11,7 +11,7 @@
 
 ;any global data (like .BYTE) goes here
 
-main:    LDBA    bacon,d     ;A = value in bacon
+main:    
 
          
 
