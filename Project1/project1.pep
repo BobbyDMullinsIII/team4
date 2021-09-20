@@ -14,13 +14,13 @@
 ;end global data
 
 main:    STRO    welcome,d   ;display welcome message and input prompt to the user
-
+         
          
 
 stopprog:STOP                ;end program symbol
 
 ;begin .ASCII strings
-welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, sinlge operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
+welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
 ;end .ASCII strings
 
          .END                ;end code
