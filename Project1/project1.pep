@@ -10,12 +10,23 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-
+inptVal1:.BLOCK  2           ;first input number #2d
+inptVal2:.BLOCK  2           ;second input number #2d
+operator:.BYTE   'x'         ;expression operator #1c
+answer:  .BLOCK  2           ;answer for input expression #2d          
 ;end global data
 
-main:    STRO    welcome,d   ;display welcome message and input prompt to the user
-         
-         
+;input expression code block
+main:    STRO    welcome,d   ;display welcome message and input prompt to the use     
+         LDBA    charIn,d    ;A = input character
+         ;parse
+         DECI    inptVal1,d  ;inptVal2 = first number in expression
+         LDBA    charIn,d    ;A = input character
+         STBA    operator,d  ;store operator in 'operator'
+         LDBA    charIn,d    ;A = input character
+         ;parse
+         DECI    inptVal2,d  ;inptVal2 = second number in expression
+
 
 stopprog:STOP                ;end program symbol
 
