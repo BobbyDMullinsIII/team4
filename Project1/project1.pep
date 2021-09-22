@@ -10,22 +10,52 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
+chekVal1:.BYTE   'x'         ;temp character val for checking for double-digit and negative numbers
+chekVal2:.BYTE   'x'         ;temp character val for checking for double-digit and negative numbers
 inptVal1:.BLOCK  2           ;first input number #2d
 inptVal2:.BLOCK  2           ;second input number #2d
 operator:.BYTE   'x'         ;expression operator #1c
-answer:  .BLOCK  2           ;answer for input expression #2d          
+answer:  .BLOCK  2           ;answer for input expression #2d
 ;end global data
 
 ;input expression code block
-main:    STRO    welcome,d   ;display welcome message and input prompt to the use     
+main:    STRO    welcome,d   ;display welcome message and input prompt to the use  
+  
+         ;code for first number(and checking if it is negative or double-digit) goes here 
          LDBA    charIn,d    ;A = input character
-         ;parse
-         DECI    inptVal1,d  ;inptVal2 = first number in expression
+         
+         ;code for storing operator
          LDBA    charIn,d    ;A = input character
          STBA    operator,d  ;store operator in 'operator'
+
+         ;code for second number(and checking if it is negative or double-digit) goes here
          LDBA    charIn,d    ;A = input character
-         ;parse
-         DECI    inptVal2,d  ;inptVal2 = second number in expression
+
+
+;store negative number if negative number detected code block
+storeneg:      
+
+;store double-digit number if double-digit number detected code block
+storedub:
+
+;calculate final answer code block
+calcansw:LDBA    operator,d  ;A = value in operator
+         CPBA    '+',i       ;is operator equal to + ?
+         BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
+                             ;yes  ->add first number and second number together
+  
+       
+subtcalc:
+
+;output postfix expression code block
+psfxdisp:;output first number code goes here
+         ;(use delineator if negative or double-digit)
+
+         ;output second number code goes here
+         ;(use delineator if negative or double-digit)
+
+         LDBA    operator,i  ;load operator into index register
+         STBA    charOut,d   ;output display operator
 
 
 stopprog:STOP                ;end program symbol
