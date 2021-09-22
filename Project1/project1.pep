@@ -20,15 +20,15 @@ answer:  .BLOCK  2           ;answer for input expression #2d
 
 ;input expression code block
 main:    STRO    welcome,d   ;display welcome message and input prompt to the use  
-  
-         ;code for first number(and checking if it is negative or double-digit) goes here 
+
+         ;(code for first number(and checking if it is negative or double-digit) goes here)
          LDBA    charIn,d    ;A = input character
          
          ;code for storing operator
          LDBA    charIn,d    ;A = input character
          STBA    operator,d  ;store operator in 'operator'
 
-         ;code for second number(and checking if it is negative or double-digit) goes here
+         ;(code for second number(and checking if it is negative or double-digit) goes here)
          LDBA    charIn,d    ;A = input character
 
 
@@ -43,18 +43,18 @@ calcansw:LDBA    operator,d  ;A = value in operator
          CPBA    '+',i       ;is operator equal to + ?
          BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
                              ;yes  ->add first number and second number together
-  
-       
-subtcalc:
+         ;(code for adding numbers together goes here)
+
+subtcalc:;(code for subtracting first number from second number goes here)
 
 ;output postfix expression code block
-psfxdisp:;output first number code goes here
+psfxdisp:;(output first number code goes here)
          ;(use delineator if negative or double-digit)
 
-         ;output second number code goes here
+         ;(output second number code goes here)
          ;(use delineator if negative or double-digit)
 
-         LDBA    operator,i  ;load operator into index register
+         LDBA    operator,d  ;load operator into accumulator
          STBA    charOut,d   ;output display operator
 
 
