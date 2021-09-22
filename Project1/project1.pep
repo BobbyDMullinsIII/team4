@@ -10,7 +10,7 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-chekVal1:.BYTE   'x'         ;temp character val for checking for double-digit and negative numbers
+chekVal1:.BYTE   'x'         ;temo character val for checking for double-digit and negative numbers
 chekVal2:.BYTE   'x'         ;temp character val for checking for double-digit and negative numbers
 inptVal1:.BLOCK  2           ;first input number #2d
 inptVal2:.BLOCK  2           ;second input number #2d
@@ -33,10 +33,10 @@ main:    STRO    welcome,d   ;display welcome message and input prompt to the us
 
 
 ;store negative number if negative number detected code block
-storeneg:      
+storeneg:;(code for putting negative number in stack goes here)
 
 ;store double-digit number if double-digit number detected code block
-storedub:
+storedub:;(code for putting double-digit number in stack goes here)
 
 ;calculate final answer code block
 calcansw:LDBA    operator,d  ;A = value in operator
