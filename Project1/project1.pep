@@ -22,14 +22,12 @@ answer:  .BLOCK  2           ;answer for input expression #2d
 main:    STRO    welcome,d   ;display welcome message and input prompt to the use  
 
          ;(code for first number(and checking if it is negative or double-digit) goes here)
-         LDBA    charIn,d    ;A = input character
          
          ;code for storing operator
          LDBA    charIn,d    ;A = input character
          STBA    operator,d  ;store operator in 'operator'
 
          ;(code for second number(and checking if it is negative or double-digit) goes here)
-         LDBA    charIn,d    ;A = input character
 
 
 ;store negative number if negative number detected code block
@@ -57,11 +55,17 @@ psfxdisp:;(output first number code goes here)
          LDBA    operator,d  ;load operator into accumulator
          STBA    charOut,d   ;output display operator
 
+         STRO    equals,d    ;output display equals sign
+
+         ;(output answer code goes here)
+         ;(use delineator if negative or double-digit)
+
 
 stopprog:STOP                ;end program symbol
 
 ;begin .ASCII strings
 welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
+equals:  .ASCII  "=\x00"     ;does not go to new line
 ;end .ASCII strings
 
          .END                ;end code
