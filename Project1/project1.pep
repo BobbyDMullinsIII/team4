@@ -10,8 +10,8 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-chekVal1:.byte  'x'         ;temp character val for checkin double-digit and negative numbers #1c 
-chekVal2:.byte  'x'         ;temp character val for checking double-digit and negative numbers #1c 
+chekVal1:.byte  'x'          ;temp character val for checkin double-digit and negative numbers #1c 
+chekVal2:.byte  'x'          ;temp character val for checking double-digit and negative numbers #1c 
 inptVal1:.BLOCK  1           ;first input number #1d
 inptVal2:.BLOCK  1           ;second input number #1d
 operator:.BYTE   'x'         ;expression operator #1c
@@ -29,7 +29,7 @@ main:    STRO    welcome,d   ;display welcome message and input prompt to the us
 check1st:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA   chekVal1,d ;no ->store current char and parse to next char
+         STBA    chekVal1,d  ;no ->store current char and parse to next char
          LDBA    charIn,d    ;A = input character for checking
          
 chekaddi:CPBA    '+',i       ;is there a plus + operator?
@@ -52,12 +52,12 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          ;CPBA    '',i       ;is there an empty character in input after previous charIn? 
          ;(im not sure what the real empty input character is, if anyone knows, please put it here)
 
-         BR    calcansw    ;yes  ->go to calcansw for calculating answer to expression
-         STBA    storedub,d    ;no ->go to storedub for double-digit input  
+         BR      calcansw    ;yes  ->go to calcansw for calculating answer to expression
+         STBA    storedub,d  ;no ->go to storedub for double-digit input  
 
 
 ;store negative number if negative number detected code block
-storeneg:STBA    chekVal1,d ;store minus sign in checkVal1 
+storeneg:STBA    chekVal1,d  ;store minus sign in checkVal1 
          LDBA    charIn,d    ;A = input digit
          STBA    chekVal2,d  ;store second character in checkVal2 
          ;(code for combining checkVal1 minus sign and checkVal2 digit into single number goes here)
@@ -81,10 +81,10 @@ calcansw:LDBA    operator,d  ;A = value in operator
          CPBA    '+',i       ;is operator equal to + ?
          BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number 
          LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
-         ADDA    chekVal1,d
-         SUBA    9,d
-         STBA    answer,d
-         BR      output
+         ADDA    chekVal1,d  ;add second number.
+         SUBA    9,d         ;Add 9 or 30 in this case to get the correct ASCII answer
+         STBA    answer,d    ;store answer
+         BR      output      ;Branch to output when finished
          
          ;(code for subtracting first number from second number goes here) 
          ;(remember that the first digit to be popped off the stack will be the right-hand number)
