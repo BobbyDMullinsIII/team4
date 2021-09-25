@@ -10,12 +10,13 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-chekVal1:.BYTE   'x'         ;temp character val for checkin double-digit and negative numbers #1c
-chekVal2:.BYTE   'x'         ;temp character val for checking double-digit and negative numbers #1c
-inptVal1:.BLOCK  2           ;first input number #2d
-inptVal2:.BLOCK  2           ;second input number #2d
+chekVal1:.byte  'x'         ;temp character val for checkin double-digit and negative numbers #1c 
+chekVal2:.byte  'x'         ;temp character val for checking double-digit and negative numbers #1c 
+inptVal1:.BLOCK  1           ;first input number #1d
+inptVal2:.BLOCK  1           ;second input number #1d
 operator:.BYTE   'x'         ;expression operator #1c
-answer:  .BLOCK  2           ;answer for input expression #2d
+answer:  .byte  'x'          ;answer for input expression #1c
+mask:    .WORD   0x0030      ;Mask for ASCII char
 ;end global data
 
 ;input expression code block
@@ -28,13 +29,13 @@ main:    STRO    welcome,d   ;display welcome message and input prompt to the us
 check1st:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA    checkVal1,d ;no ->store current char and parse to next char
+         STBA   chekVal1,d ;no ->store current char and parse to next char
          LDBA    charIn,d    ;A = input character for checking
-
+         
 chekaddi:CPBA    '+',i       ;is there a plus + operator?
          BRNE    cheksubt    ;no ->go to cheksubt for checking is operator is a minus sign
          STBA    operator,d  ;yes ->store operator
-         BR      cheknext    ;branch to check2nd for checking second full number in input equation
+         BR      check2nd    ;branch to check2nd for checking second full number in input equation 
 
 cheksubt:CPBA    '-',i       ;is there a minus - operator?
          BRNE    storedub    ;no ->go to storedub for storing double-digit number in stack
@@ -44,25 +45,26 @@ cheksubt:CPBA    '-',i       ;is there a minus - operator?
 check2nd:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA    checkVal1,d ;no ->store current char and parse to next char
-
+         STBA    chekVal2,d  ;no ->store current char and parse to next char
+        
+         
          LDBA    charIn,d    ;A = input character for checking
-         CPBA    '.',i       ;is there an empty character in input after previous charIn? 
+         ;CPBA    '',i       ;is there an empty character in input after previous charIn? 
          ;(im not sure what the real empty input character is, if anyone knows, please put it here)
 
-         BREQ    calcansw    ;yes  ->go to calcansw for calculating answer to expression
-         STBA    storedub    ;no ->go to storedub for double-digit input  
+         BR    calcansw    ;yes  ->go to calcansw for calculating answer to expression
+         STBA    storedub,d    ;no ->go to storedub for double-digit input  
 
 
 ;store negative number if negative number detected code block
-storeneg:STBA    checkVal1,d ;store minus sign in checkVal1
+storeneg:STBA    chekVal1,d ;store minus sign in checkVal1 
          LDBA    charIn,d    ;A = input digit
-         STBA    checkVal2,  ;store second character in checkVal2
+         STBA    chekVal2,d  ;store second character in checkVal2 
          ;(code for combining checkVal1 minus sign and checkVal2 digit into single number goes here)
          ;(code for putting negative number in stack goes here)
 
 ;store double-digit number if double-digit number detected code block
-storedub:STBA    checkVal2,d
+storedub:STBA    chekVal2,d
          ;(code for combining checkVal1 digit and checkVal2 digit into single number goes here)
          ;(code for putting double-digit number in stack goes here)
 
@@ -72,30 +74,46 @@ storedub:STBA    checkVal2,d
 ;ANSWER CALCULATION AND POSTFIX OUTPUT SECTION
 ;********************************************************************************
 ;calculate final answer code block
-calcansw:LDBA    operator,d  ;A = value in operator
-         CPBA    '+',i       ;is operator equal to + ?
-         BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
-                             ;yes  ->add first number and second number together from stack
 
          ;(code for adding numbers together goes here)
          ;(remember that the first digit to be popped off the stack will be the right-hand number)
-
-subtcalc:;(code for subtracting first number from second number goes here)
+calcansw:LDBA    operator,d  ;A = value in operator
+         CPBA    '+',i       ;is operator equal to + ?
+         BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number 
+         LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
+         ADDA    chekVal1,d
+         SUBA    9,d
+         STBA    answer,d
+         BR      output
+         
+         ;(code for subtracting first number from second number goes here) 
          ;(remember that the first digit to be popped off the stack will be the right-hand number)
+subtcalc:LDBA    operator,d  ;A = value in operator
+         CPBA    '-',i       ;is operator equal to + ?
+         BRNE    stopprog    ;no  ->go to subtcalc to subtract second number from first number 
+         LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
+         SUBA    chekVal1,d  ;subtract second number.
+         ADDA    9,d         ;Add 9 or 30 in this case to get the correct ASCII answer
+         STBA    answer,d    ;store answer
+         BR      output      ;Branch to output when finished
+         
 
-;output postfix expression code block
-psfxdisp:;(output first number code goes here)
+         ;output postfix expression code block
+          
+         ;(output first number code goes here) 
          ;(use delineator if negative or double-digit)
 
          ;(output second number code goes here)
          ;(use delineator if negative or double-digit)
-
+output:  LDBA    chekVal1,d  ;load value 1
+         STBA    charOut,d   ;output display 1
          LDBA    operator,d  ;A = operator for output display is postfix expression
          STBA    charOut,d   ;output display operator
-
+         LDBA    chekVal2,d  ;load value 2
+         STBA    charOut,d   ;output display value 2
          STRO    equals,d    ;output display equals sign
-
-         ;(output answer code goes here)
+         STRO    answer,d    ;output display answer
+        
          ;(use delineator if negative or double-digit)
 
 ;********************************************************************************
