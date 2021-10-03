@@ -10,14 +10,12 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-sum:     .WORD   0x0000 
-chekVal1:.BYTE   'x'         ;temp character val for checkin double-digit and negative numbers #1c
-chekVal2:.BYTE   'x'         ;temp character val for checking double-digit and negative numbers #1c
-inptVal1:.BLOCK  1           ;first input number #1d
+chekVal1:.BLOCK  2           ;temp character val for checkin double-digit and negative numbers #2c
+chekVal2:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
+inptVal1:.WORD   0x0000      ;first input number #2d
+inptVal2:.WORD   0x0000      ;second input number #2d
 operator:.BYTE   'x'         ;expression operator #1c
-inptVal2:.BLOCK  1           ;second input number #1d
-answer:  .BYTE   'x'          ;variable that holds the answer #1c
-mask:    .WORD   0x0030      ;Mask for ASCII char
+answer:  .WORD   0x0000      ;answer for input expression #2d
 ;end global data
 
 ;input expression code block
@@ -30,10 +28,13 @@ main:    STRO    welcome,d   ;display welcome message and input prompt to the us
 check1st:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA    chekVal1,d  ;no ->store current char and parse to next char
-         LDBA    charIn,d    ;A = input character for checking
-
-chekaddi:CPBA    '+',i       ;is there a plus + operator?
+         STBA    chekVal1,d  ;No --> store first number in chekVal1
+         LDBA    chekVal1,d  ;Load that number back up
+         SUBA    0x0030,i    ;Subtract 0x0030 from that number to get it as a decimal value
+         STWA    inptVal1,d  ;Store this as a word into inptVal1
+ 
+chekaddi:LDBA    charIn,d    ;A = input character for checking
+         CPBA    '+',i       ;is there a plus + operator?
          BRNE    cheksubt    ;no ->go to cheksubt for checking is operator is a minus sign
          STBA    operator,d  ;yes ->store operator
          BR      check2nd    ;branch to check2nd for checking second full number in input equation
@@ -46,16 +47,27 @@ cheksubt:CPBA    '-',i       ;is there a minus - operator?
 check2nd:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA    chekVal2,d  ;no ->store current char and parse to next char
+         STBA    chekVal2,d  ;no ->store current char and parse to next char  
+         LDBA    chekVal2,d  ;Load in chekVal2
+         SUBA    0x0030,i    ;Subtract 0x0030 from chekVal2 to get it as a decimal value
+         STWA    inptVal2,d  ;Stroe this as a word into inptVal2
 
 
-         LDBA    charIn,d    ;A = input character for checking
 ;CPBA    '',i       ;is there an empty character in input after previous charIn?
 ;(im not sure what the real empty input character is, if anyone knows, please put it here)
 
          BR      calcansw    ;yes  ->go to calcansw for calculating answer to expression
          STBA    storedub,d  ;no ->go to storedub for double-digit input
 
+;code block for pushing inptVal1 into stack
+         SUBSP   2,i         ;push single-digit #inptVal1 ;WARNING: inptVal1 not specified in .EQUATE
+         LDWA    inptVal1,d  ;A = inptVal1
+         STWA    0,s         ;inptVal1 on the stack
+
+;code block for pushing inptVal2 into stack
+         SUBSP   2,i         ;push single-digit #inptVal2 ;WARNING: inptVal2 not specified in .EQUATE
+         LDWA    inptVal2,d  ;A = inptVal2
+         STWA    0,s         ;inptVal2 on the stack
 
 ;store negative number if negative number detected code block
 storeneg:STBA    chekVal1,d  ;store minus sign in checkVal1
@@ -74,49 +86,51 @@ storedub:STBA    chekVal2,d
 
 ;ANSWER CALCULATION AND POSTFIX OUTPUT SECTION
 ;********************************************************************************
-;calculate final answer code block
+;code block for popping inptVal2 from stack
+calcansw:ADDSP   2,i         ;pop single-digit #inptVal2 ;WARNING: inptVal2 not specified in .EQUATE
+         LDWA    0,s         ;A = inptVal2
+         STWA    inptVal2,s  ;inptVal2 off the stack
+
+;code block for popping inptVal1 from stack
+         ADDSP   2,i         ;pop single-digit #inptVal1 ;WARNING: inptVal1 not specified in .EQUATE
+         LDWA    0,s         ;A = inptVal1
+         STWA    inptVal1,s  ;inptVal1 off the stack
 
 ;(code for adding numbers together goes here)
 ;(remember that the first digit to be popped off the stack will be the right-hand number)
-calcansw:LDBA    operator,d  ;A = value in operator
+         LDBA    operator,d  ;A = value in operator
          CPBA    '+',i       ;is operator equal to + ?
          BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
-         LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
-         ADDA    chekVal1,d  ;add second number.
-         SUBA    mask,d      ;Add 9 or 30 in this case to get the correct ASCII answer
-         STBA    answer,d    ;store answer
-         BR      postout     ;Branch to output when finished
+         LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
+         ADDA    inptVal2,d  ;add second number.
+         STWA    answer,d    ;store answer as a word 
+         BR      output      ;Branch to output when finished
 
 ;(code for subtracting first number from second number goes here)
 ;(remember that the first digit to be popped off the stack will be the right-hand number)
 subtcalc:LDBA    operator,d  ;A = value in operator
          CPBA    '-',i       ;is operator equal to + ?
          BRNE    stopprog    ;no  ->go to subtcalc to subtract second number from first number
-         LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
-         SUBA    chekVal1,d  ;subtract second number.
-         ADDA    mask,d      ;Add 9 or 30 in this case to get the correct ASCII answer
-         STBA    answer,d    ;store answer
+         LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
+         SUBA    inptVal2,d  ;subtract second number.
+         STWA    answer,d    ;store answer
+         BR      output      ;Branch to output when finished
 
 
 ;output postfix expression code block
-postout: STRO    newline,d   ;display a new line before we output the postfix expression
-         STRO    postout1,d  ;display postfix string skeleton
-         STRO    chekVal1,d  ;display the user's input digits in postfix
-         STRO    operator,d  ;dsiplay the operator
-         STRO    newline,d   ;display a new line after the postfix expression
 
 ;(output first number code goes here)
 ;(use delineator if negative or double-digit)
 
 ;(output second number code goes here)
 ;(use delineator if negative or double-digit)
-output:  STRO    finalan,d   ;displays final answer strings skeleton
+output:  STRO    postout,d   ;output postout to specify that it is a postout expression
          LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
-         LDBA    operator,d  ;A = operator for output display is postfix expression
-         STBA    charOut,d   ;output display operator
          LDBA    chekVal2,d  ;load value 2
          STBA    charOut,d   ;output display value 2
+         LDBA    operator,d  ;A = operator for output display is postfix expression
+         STBA    charOut,d   ;output display operator
          STRO    equals,d    ;output display equals sign
          DECO    answer,d    ;output display answer
 
@@ -129,18 +143,9 @@ stopprog:STOP                ;end program symbol
 ;begin .ASCII strings
 welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
 
-
-finalan: .ASCII  "Final answer: \x00"
-
-
 equals:  .ASCII  "=\x00"     ;does not go to new line
 
-
-postout1:.ASCII  "Postfix expression: \x00"
-
-
-newline: .ASCII  "\n\x00"    
-
+postout: .ASCII  "Postfix expression: \x00"
 
 ;end .ASCII strings
 
