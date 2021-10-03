@@ -10,14 +10,14 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-sum:     .WORD   0x0000      ;sum 0x0000
-chekVal1:.BYTE   'x'         ;temp character val for checkin double-digit and negative numbers #1c
-chekVal2:.BYTE   'x'         ;temp character val for checking double-digit and negative numbers #1c
-inputVal:.EQUATE  2          ;input number for pushing onto stack #2d
+chekVal1:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
+chekVal2:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
+inptVal1:.WORD   0x0000      ;first input number #0d
+inptVal2:.WORD   0x0000      ;second input number #0d
 operator:.BYTE   'x'         ;expression operator #1c
+answer:  .WORD   0x0000      ;answer for input expression #2d
 outpVal1:.EQUATE  2          ;first output number (second popped from stack)#2d
 outpVal2:.EQUATE  2          ;second input number (first popped from stack)#2d
-answer:  .BYTE   'x'         ;variable that holds the answer #1c
 mask:    .WORD   0x0030      ;mask for ASCII char
 ;end global data
 
@@ -31,11 +31,14 @@ main:    STRO    welcome,d   ;display welcome message and input prompt to the us
 check1st:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA    chekVal1,d  ;no ->store current char and parse to next char
-         LDBA    charIn,d    ;A = input character for checking
-
-chekaddi:CPBA    '+',i       ;is there a plus + operator?
-         BRNE    cheksubt    ;no ->go to cheksubt for checking is operator is a minus sign
+         STBA    chekVal1,d  ;No --> store first number in chekVal1
+         LDBA    chekVal1,d  ;Load that number back up
+         SUBA    0x0030,i    ;Subtract 0x0030 from that number to get it as a decimal value
+         STWA    1,d         ;Store this as a word into inptVal1
+ 
+chekaddi:LDBA    charIn,d    ;A = input character for checking
+         CPBA    '+',i       ;is there a plus + operator?
+         BRNE    cheksubt    ;no ->go to cheksubt for checking if operator is a minus sign
          STBA    operator,d  ;yes ->store operator
          BR      check2nd    ;branch to check2nd for checking second full number in input equation
 
@@ -47,12 +50,14 @@ cheksubt:CPBA    '-',i       ;is there a minus - operator?
 check2nd:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
-         STBA    chekVal2,d  ;no ->store current char and parse to next char
+         STBA    chekVal2,d  ;no ->store current char and parse to next char  
+         LDBA    chekVal2,d  ;Load in chekVal2
+         SUBA    0x0030,i    ;Subtract 0x0030 from chekVal2 to get it as a decimal value
+         STWA    inptVal2,d  ;Store this as a word into inptVal2
 
 
-         LDBA    charIn,d    ;A = input character for checking
-        ;CPBA    '',i       ;is there an empty character in input after previous charIn?
-        ;(im not sure what the real empty input character is, if anyone knows, please put it here)
+;CPBA    '',i       ;is there an empty character in input after previous charIn?
+;(im not sure what the real empty input character is, if anyone knows, please put it here)
 
          BR      calcansw    ;yes  ->go to calcansw for calculating answer to expression
          STBA    storedub,d  ;no ->go to storedub for double-digit input
@@ -70,24 +75,24 @@ storenum:STBA    chekVal1,d
 storeneg:STBA    chekVal1,d  ;store minus sign in checkVal1
          LDBA    charIn,d    ;A = input digit
          STBA    chekVal2,d  ;store second character in checkVal2
-
+         
          ;(code for combining checkVal1 minus sign and checkVal2 digit into single storage value 'inputVal' goes here)
 
-         ;code block for pushing inputVal into stack
+         ;code block for pushing inptVal1 into stack
          SUBSP   2,i         ;push negative #inputVal 
-         LDWA    inputVal,d  ;A = inputVal
+         LDWA    inptVal1,d  ;A = inptVal1
          STWA    0,s         ;inputVal on the stack
 
 
 ;store double-digit number if double-digit number detected code block
 storedub:STBA    chekVal1,d  
+
          ;(code for combining checkVal1 digit and checkVal2 digit into single storage value 'inputVal' goes here)
 
-         ;code block for pushing inputVal into stack
+         ;code block for pushing inptVal2 into stack
          SUBSP   2,i         ;push double-digit #inputVal 
-         LDWA    inputVal,d  ;A = inputVal
+         LDWA    inptVal2,d  ;A = inptVal2
          STWA    0,s         ;inputVal on the stack
-
 
 ;********************************************************************************
 
@@ -98,25 +103,25 @@ storedub:STBA    chekVal1,d
 
          ;(code for adding numbers together goes here)
          ;(some of this is test code and does not currently use the stored stack values)
+         ;(remember that the first digit to be popped off the stack will be the right-hand number)
 calcansw:LDBA    operator,d  ;A = value in operator
          CPBA    '+',i       ;is operator equal to + ?
          BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
-         LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
-         ADDA    chekVal1,d  ;add second number.
-         SUBA    mask,d      ;Add 9 or 30 in this case to get the correct ASCII answer
-         STBA    answer,d    ;store answer
-         BR      postout     ;Branch to output when finished
+         LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
+         ADDA    inptVal2,d  ;add second number.
+         STWA    answer,d    ;store answer as a word 
+         BR      output      ;Branch to output when finished
 
          ;(code for subtracting first number popped from second number popped goes here)
          ;(some of this is test code and does not currently use the stored stack values)
+         ;(remember that the first digit to be popped off the stack will be the right-hand number)
 subtcalc:LDBA    operator,d  ;A = value in operator
          CPBA    '-',i       ;is operator equal to - ?
          BRNE    stopprog    ;no  ->go to stopprog because an error has occurred
-         LDBA    chekVal1,d  ;yes  ->add first number and second number together from stack
-         SUBA    chekVal1,d  ;subtract second number.
-         ADDA    mask,d      ;Add 9 or 30 in this case to get the correct ASCII answer
-         STBA    answer,d    ;store answer
-
+         LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
+         SUBA    inptVal2,d  ;subtract second number.
+         STWA    answer,d    ;store answer
+         BR      output      ;Branch to output when finished
 
 ;(test output code) blocks
 ;output postfix expression code block
@@ -126,11 +131,13 @@ postout: STRO    newline,d   ;display a new line before we output the postfix ex
          STRO    operator,d  ;dsiplay the operator
          STRO    newline,d   ;display a new line after the postfix expression
 
+
 ;(output first number code goes here)
 ;(use delineator if negative or double-digit)
 
 ;(output second number code goes here)
 ;(use delineator if negative or double-digit)
+
 output:  STRO    finalan,d   ;displays final answer strings skeleton
          LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
@@ -157,8 +164,6 @@ equals:  .ASCII  "=\x00"     ;does not go to new line
 postout1:.ASCII  "Postfix expression: \x00"
 
 newline: .ASCII  "\n\x00"    
-
-
 ;end .ASCII strings
 
          .END                  ;end code
