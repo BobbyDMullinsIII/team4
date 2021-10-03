@@ -12,8 +12,8 @@
 ;begin global data
 chekVal1:.BLOCK  2           ;temp character val for checkin double-digit and negative numbers #2c
 chekVal2:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
-inptVal1:.WORD   0x0000      ;first input number #0d
-inptVal2:.WORD   0x0000      ;second input number #0d
+inptVal1:.WORD   0x0000      ;first input number #2d
+inptVal2:.WORD   0x0000      ;second input number #2d
 operator:.BYTE   'x'         ;expression operator #1c
 answer:  .WORD   0x0000      ;answer for input expression #2d
 ;end global data
@@ -59,6 +59,15 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          BR      calcansw    ;yes  ->go to calcansw for calculating answer to expression
          STBA    storedub,d  ;no ->go to storedub for double-digit input
 
+;code block for pushing inptVal1 into stack
+         SUBSP   2,i         ;push single-digit #inptVal1 ;WARNING: inptVal1 not specified in .EQUATE
+         LDWA    inptVal1,d  ;A = inptVal1
+         STWA    0,s         ;inptVal1 on the stack
+
+;code block for pushing inptVal2 into stack
+         SUBSP   2,i         ;push single-digit #inptVal2 ;WARNING: inptVal2 not specified in .EQUATE
+         LDWA    inptVal2,d  ;A = inptVal2
+         STWA    0,s         ;inptVal2 on the stack
 
 ;store negative number if negative number detected code block
 storeneg:STBA    chekVal1,d  ;store minus sign in checkVal1
@@ -77,11 +86,19 @@ storedub:STBA    chekVal2,d
 
 ;ANSWER CALCULATION AND POSTFIX OUTPUT SECTION
 ;********************************************************************************
-;calculate final answer code block
+;code block for popping inptVal2 from stack
+calcansw:ADDSP   2,i         ;pop single-digit #inptVal2 ;WARNING: inptVal2 not specified in .EQUATE
+         LDWA    0,s         ;A = inptVal2
+         STWA    inptVal2,s  ;inptVal2 off the stack
+
+;code block for popping inptVal1 from stack
+         ADDSP   2,i         ;pop single-digit #inptVal1 ;WARNING: inptVal1 not specified in .EQUATE
+         LDWA    0,s         ;A = inptVal1
+         STWA    inptVal1,s  ;inptVal1 off the stack
 
 ;(code for adding numbers together goes here)
 ;(remember that the first digit to be popped off the stack will be the right-hand number)
-calcansw:LDBA    operator,d  ;A = value in operator
+         LDBA    operator,d  ;A = value in operator
          CPBA    '+',i       ;is operator equal to + ?
          BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
          LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
@@ -107,12 +124,13 @@ subtcalc:LDBA    operator,d  ;A = value in operator
 
 ;(output second number code goes here)
 ;(use delineator if negative or double-digit)
-output:  LDBA    chekVal1,d  ;load value 1
+output:  STRO    postout,d   ;output postout to specify that it is a postout expression
+         LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
-         LDBA    operator,d  ;A = operator for output display is postfix expression
-         STBA    charOut,d   ;output display operator
          LDBA    chekVal2,d  ;load value 2
          STBA    charOut,d   ;output display value 2
+         LDBA    operator,d  ;A = operator for output display is postfix expression
+         STBA    charOut,d   ;output display operator
          STRO    equals,d    ;output display equals sign
          DECO    answer,d    ;output display answer
 
@@ -126,6 +144,8 @@ stopprog:STOP                ;end program symbol
 welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
 
 equals:  .ASCII  "=\x00"     ;does not go to new line
+
+postout: .ASCII  "Postfix expression: \x00"
 
 ;end .ASCII strings
 
