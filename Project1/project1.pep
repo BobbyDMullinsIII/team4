@@ -20,6 +20,7 @@ operator:.BYTE   'x'         ;expression operator #1c
 answer:  .WORD   0x0000      ;answer for input expression #2d
 negdigt1:.BYTE   'x'         ;holds negative sign for a digit
 negdigt2:.BYTE   'x'         ;holds negative sign for a digit
+multineg:.BYTE   'x'         ;holds negative sign for the numbers of multiple operations
 multiop: .BYTE   'x'         ;holds experssion operator for multiple operations
 ;end global data
 
@@ -74,7 +75,7 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          LDWA    inptVal2,d  ;A = inptVal2
          STWA    0,s         ;inptVal2 on the stack
 
-;store negative number if negative number detected code block
+;;Code block for the negative number logic
 storeneg:STBA    negdigt1,d  ;store minus sign in negdigit
          LDBA    charIn,d    ;A = input digit
          STBA    chekVal1,d  ;store first number in checkVal1
@@ -117,8 +118,10 @@ storneg2:STBA    negdigt2,d  ;store minus sign in negdigit
          NEGA                ;negate the accumulator to put it back into a postive state
          BR      calc        
 
+;;end code block for negative numbers
 
-multiple:LDBA    answer,d    ;load answer into A
+;;Code for multiple operations
+multiwh: LDBA    answer,d    ;load answer into A
          CPBA    0,i         ;compare the answer to 0
          BRGT    nonegate    ;if greater than 0 branch past negate
          NEGA                ;if answer is negative negate it
@@ -127,19 +130,45 @@ nonegate:LDBA    charIn,d    ;load in next character
          BREQ    output      ;if not branch to output
          STBA    multiop,d   ;store input if there is any
          LDBA    charIn,d    ;load next digit
-;CPBA    '-',i       ;is there a negative sign?
-;BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
+         CPBA    '-',i       ;is there a negative sign?
+         BREQ    sign4neg    ;yes  ->go to storeneg for storing negative number in stack
          STBA    chekVal3,d  ;No --> store first number in chekVal1
          LDBA    chekVal3,d  ;Load that number back up
          SUBA    0x0030,i    ;Subtract 0x0030 from that number to get it as a decimal value
          STWA    inptVal3,d  ;Store this as a word into inptVal1
-         LDWA    answer,d    ;load the answer back
+         LDBA    multiop,d   ;load the second operator back into A
+         CPBA    '+',i       ;check to see if the operation is addition
+         BRNE    multisub    ;branch to the addition if that is the operation
+multiadd:LDWA    answer,d    ;load the answer back
          ADDA    inptVal3,d  ;add it to the next number
          STWA    answer,d    ;store it as the new answer
-         BR      output      ;output
+         BR      multiwh     ;branch back to while loop
 
 
 
+multisub:LDWA    answer,d    ;load the answer back
+         SUBA    inptVal3,d  ;add it to the next number
+         STWA    answer,d    ;store it as the new answer
+         BR      multiwh     ;branch back to while loop
+
+sign4neg:STBA    multiop,d   ;load the negative sign into its place holder
+         LDBA    charIn,d    ;A = input digit
+         STBA    chekVal3,d  ;store first number in checkVal1
+         LDBA    chekVal3,d  ;Load that number back up
+         SUBA    0x0030,i    ;Subtract 0x0030 from that number to get it as a decimal value
+         STWA    inptVal3,d  ;Store this as a word into inptVal1
+         LDWA    inptVal3,d  ;load number back into A
+         NEGA                ;negate the number to make it negative
+         STWA    inptVal3,d  ;store the new negative number
+         NEGA                ;negat the accumulator again to put it back into a postive state
+         LDBA    multiop,d   ;load operator back into A
+         CPBA    '+',i       ;check if we need to add or subtract
+         BRNE    multisub    ;branch to subtraction if that is the operation
+         BR      multiadd    ;branch to addition if that is the operation
+              
+
+
+;;end code block of multiple operations
 
 ;(code for combining checkVal1 minus sign and checkVal2 digit into single number goes here)
 ;(code for putting negative number in stack goes here)
@@ -183,7 +212,7 @@ calc:    LDBA    operator,d  ;A = value in operator
          LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
          ADDA    inptVal2,d  ;add second number.
          STWA    answer,d    ;store answer as a word
-         BR      multiple    ;branch to check if there are multiple operations
+         BR      multiwh     ;branch to check if there are multiple operations
          BR      output      ;Branch to output when finished
 
 ;(code for subtracting first number from second number goes here)
@@ -194,7 +223,7 @@ subtcalc:LDBA    operator,d  ;A = value in operator
          LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
          SUBA    inptVal2,d  ;subtract second number.
          STWA    answer,d    ;store answer
-         BR      multiple    ;branch to check if there are multiple operations
+         BR      multiwh     ;branch to check if there are multiple operations
          BR      output      ;Branch to output when finished
 
 
@@ -234,11 +263,14 @@ welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a singl
 
 
 
+
 equals:  .ASCII  "=\x00"     ;does not go to new line
 
 
 
+
 postout: .ASCII  "Postfix expression: \x00"
+
 
 
 
