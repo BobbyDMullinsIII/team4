@@ -176,12 +176,16 @@ subtcalc:LDBA    operator,d  ;A = value in operator
 ;(use delineator if negative or double-digit)
 output:  STRO    postout,d   ;output postout to specify that it is a postout expression
          LDBA    negdigt1,d  ;A = negative symbol for first number
+         CPBA    '-',i       ;checks if there is a negative symbol
+         BRNE    skipneg1    ;if there isnt a negative then do not output 
          STBA    charOut,d   ;output first negative symbol
-         LDBA    chekVal1,d  ;load value 1
+skipneg1:LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
-         LDBA    negdigt1,d  ;A = negative symbol for second number
+         LDBA    negdigt2,d  ;A = negative symbol for second number
+         CPBA    '-',i       ;checks if there is a negative symbol
+         BRNE    skipneg2    ;if there isnt a negative then do not output 
          STBA    charOut,d   ;output second negative symbol
-         LDBA    chekVal2,d  ;load value 2
+skipneg2:LDBA    chekVal2,d  ;load value 2
          STBA    charOut,d   ;output display value 2
          LDBA    operator,d  ;A = operator for output display is postfix expression
          STBA    charOut,d   ;output display operator
