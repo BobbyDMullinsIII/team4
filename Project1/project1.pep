@@ -114,7 +114,7 @@ storneg2:STBA    negdigt2,d  ;store minus sign in negdigit
          NEGA                ;negate the accumulator to put it back into a postive state
 ;(code for combining checkVal1 minus sign and checkVal2 digit into single number goes here)
 ;(code for putting negative number in stack goes here)
-postneg:         ADDSP   3,i         ;pop negative single digit ;WARNING: Number of bytes allocated (3) not equal to number of bytes listed in trace tag (0).
+postneg: ADDSP   3,i         ;pop negative single digit ;WARNING: Number of bytes allocated (3) not equal to number of bytes listed in trace tag (0).
          LDBA    0,s         ;A <---- negdigt2
          STBA    negdigt2,s  ;negdigt1 off the stack
          LDWA    1,s         ;A <---- inputVal2
@@ -175,12 +175,12 @@ subtcalc:LDBA    operator,d  ;A = value in operator
 ;(output second number code goes here)
 ;(use delineator if negative or double-digit)
 output:  STRO    postout,d   ;output postout to specify that it is a postout expression
-         LDBA    negdigt1,d
-         STBA    charOut,d
+         LDBA    negdigt1,d  ;A = negative symbol for first number
+         STBA    charOut,d   ;output first negative symbol
          LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
-         LDBA    negdigt1,d
-         STBA    charOut,d
+         LDBA    negdigt1,d  ;A = negative symbol for second number
+         STBA    charOut,d   ;output second negative symbol
          LDBA    chekVal2,d  ;load value 2
          STBA    charOut,d   ;output display value 2
          LDBA    operator,d  ;A = operator for output display is postfix expression
