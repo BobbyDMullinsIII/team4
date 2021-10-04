@@ -10,14 +10,17 @@
          BR      main        ;go directly to 'main' instruction to skip bytes
 
 ;begin global data
-chekVal1:.BLOCK  2           ;temp character val for checkin double-digit and negative numbers #2c
+chekVal1:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
 chekVal2:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
+chekVal3:.BLOCK  2           ;temp character val for checking double-digit and negative numbers #2c
 inptVal1:.WORD   0x0000      ;first input number #2d
 inptVal2:.WORD   0x0000      ;second input number #2d
+inptVal3:.WORD   0x0000      ;third input number
 operator:.BYTE   'x'         ;expression operator #1c
 answer:  .WORD   0x0000      ;answer for input expression #2d
 negdigt1:.BYTE   'x'         ;holds negative sign for a digit
 negdigt2:.BYTE   'x'         ;holds negative sign for a digit
+multiop: .BYTE   'x'         ;holds experssion operator for multiple operations
 ;end global data
 
 ;input expression code block
@@ -109,9 +112,35 @@ storneg2:STBA    negdigt2,d  ;store minus sign in negdigit
          SUBA    0x0030,i    ;Subtract 0x0030 from that number to get it as a decimal value
          STWA    inptVal2,d  ;Store this as a word into inptVal1
          LDWA    inptVal2,d  ;load number back into A
-         NEGA                ;negate the number to make it negative 
+         NEGA                ;negate the number to make it negative
          STWA    inptVal2,d  ;store the new negative number
          NEGA                ;negate the accumulator to put it back into a postive state
+         BR      calc        
+
+
+multiple:LDBA    answer,d    ;load answer into A
+         CPBA    0,i         ;compare the answer to 0
+         BRGT    nonegate    ;if greater than 0 branch past negate
+         NEGA                ;if answer is negative negate it
+nonegate:LDBA    charIn,d    ;load in next character
+         CPBA    '\n',i      ;see if there is anymore input
+         BREQ    output      ;if not branch to output
+         STBA    multiop,d   ;store input if there is any
+         LDBA    charIn,d    ;load next digit
+;CPBA    '-',i       ;is there a negative sign?
+;BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
+         STBA    chekVal3,d  ;No --> store first number in chekVal1
+         LDBA    chekVal3,d  ;Load that number back up
+         SUBA    0x0030,i    ;Subtract 0x0030 from that number to get it as a decimal value
+         STWA    inptVal3,d  ;Store this as a word into inptVal1
+         LDWA    answer,d    ;load the answer back
+         ADDA    inptVal3,d  ;add it to the next number
+         STWA    answer,d    ;store it as the new answer
+         BR      output      ;output
+
+
+
+
 ;(code for combining checkVal1 minus sign and checkVal2 digit into single number goes here)
 ;(code for putting negative number in stack goes here)
 postneg: ADDSP   3,i         ;pop negative single digit ;WARNING: Number of bytes allocated (3) not equal to number of bytes listed in trace tag (0).
@@ -154,6 +183,7 @@ calc:    LDBA    operator,d  ;A = value in operator
          LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
          ADDA    inptVal2,d  ;add second number.
          STWA    answer,d    ;store answer as a word
+         BR      multiple    ;branch to check if there are multiple operations
          BR      output      ;Branch to output when finished
 
 ;(code for subtracting first number from second number goes here)
@@ -164,6 +194,7 @@ subtcalc:LDBA    operator,d  ;A = value in operator
          LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
          SUBA    inptVal2,d  ;subtract second number.
          STWA    answer,d    ;store answer
+         BR      multiple    ;branch to check if there are multiple operations
          BR      output      ;Branch to output when finished
 
 
@@ -177,13 +208,13 @@ subtcalc:LDBA    operator,d  ;A = value in operator
 output:  STRO    postout,d   ;output postout to specify that it is a postout expression
          LDBA    negdigt1,d  ;A = negative symbol for first number
          CPBA    '-',i       ;checks if there is a negative symbol
-         BRNE    skipneg1    ;if there isnt a negative then do not output 
+         BRNE    skipneg1    ;if there isnt a negative then do not output
          STBA    charOut,d   ;output first negative symbol
 skipneg1:LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
          LDBA    negdigt2,d  ;A = negative symbol for second number
          CPBA    '-',i       ;checks if there is a negative symbol
-         BRNE    skipneg2    ;if there isnt a negative then do not output 
+         BRNE    skipneg2    ;if there isnt a negative then do not output
          STBA    charOut,d   ;output second negative symbol
 skipneg2:LDBA    chekVal2,d  ;load value 2
          STBA    charOut,d   ;output display value 2
@@ -202,10 +233,13 @@ stopprog:STOP                ;end program symbol
 welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
 
 
+
 equals:  .ASCII  "=\x00"     ;does not go to new line
 
 
+
 postout: .ASCII  "Postfix expression: \x00"
+
 
 
 ;end .ASCII strings
