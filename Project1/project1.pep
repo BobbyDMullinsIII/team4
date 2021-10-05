@@ -259,7 +259,7 @@ skipneg2:LDBA    chekVal2,d  ;load value 2
 stopprog:STOP                ;end program symbol
 
 ;begin .ASCII strings
-welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\x00"
+welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\n\x00"
 
 
 
