@@ -91,7 +91,7 @@ negadd:  LDBA    charIn,d    ;A = input character for checking
          BR      chek2neg    ;branch to check the second number
 
 negsubt: CPBA    '-',i       ;is there a minus - operator?
-         BRNE    stopprog    ;no ->go to storedub for storing double-digit number in stack 
+         BRNE    stopprog    ;no ->go to stopprog to end program
          STBA    operator,d  ;yes ->store operator
 
 chek2neg:LDBA    charIn,d    ;A = input character for checking
@@ -207,9 +207,9 @@ calc:    LDBA    operator,d  ;A = value in operator
 
 ;code for subtracting first popped number from second popped number
 subtcalc:LDBA    operator,d  ;A = value in operator
-         CPBA    '-',i       ;is operator equal to + ?
-         BRNE    stopprog    ;no  ->go to subtcalc to subtract second number from first number
-         LDWA    inptVal1,d  ;yes  ->add first number and second number together from stack
+         CPBA    '-',i       ;is operator equal to - ?
+         BRNE    stopprog    ;no ->go to stopprog to end program
+         LDWA    inptVal1,d  ;yes  ->subtract inputVal2 from inputVal1
          SUBA    inptVal2,d  ;subtract second number.
          STWA    answer,d    ;store answer
          BR      multiwh     ;branch to check if there are multiple operations
