@@ -4,7 +4,9 @@
 ;* Class: CSCI 2160-001
 ;* Project: Project 1
 ;* Date: 2021-09-16
-;* Purpose: project1.pep main assembly file for Infix2Postfix Calculator
+;* Purpose: project1.pep main assembly file for Infix2Postfix Calculator (Batch I/O)
+;*          The equation is input by the user into the Batch I/O input box and
+;*          then calculated for a final answer and converted into a Postfix equation.
 ;********************************************************************************
 
          BR      main        ;go directly to 'main' instruction to skip bytes
@@ -30,7 +32,7 @@ main:    STRO    welcome,d   ;display welcome message and input prompt to the us
 
 ;INFIX INPUT SECTION
 ;********************************************************************************
-;check first number(and checking if it is negative or double-digit) code block
+;check first number(and checking if it is negative) code block
 check1st:LDBA    charIn,d    ;A = input character for checking
          CPBA    '-',i       ;is there a negative sign?
          BREQ    storeneg    ;yes  ->go to storeneg for storing negative number in stack
@@ -58,13 +60,6 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          SUBA    0x0030,i    ;Subtract 0x0030 from chekVal2 to get it as a decimal value
          STWA    inptVal2,d  ;Store this as a word into inptVal2
 
-
-;CPBA    '',i       ;is there an empty character in input after previous charIn?
-;(im not sure what the real empty input character is, if anyone knows, please put it here)
-
-         BR      calcansw    ;yes  ->go to calcansw for calculating answer to expression
-         STBA    storedub,d  ;no ->go to storedub for double-digit input
-
 ;code block for pushing inptVal1 into stack
          SUBSP   2,i         ;push single-digit #inptVal1 ;WARNING: inptVal1 not specified in .EQUATE
          LDWA    inptVal1,d  ;A = inptVal1
@@ -74,6 +69,8 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          SUBSP   2,i         ;push single-digit #inptVal2 ;WARNING: inptVal2 not specified in .EQUATE
          LDWA    inptVal2,d  ;A = inptVal2
          STWA    0,s         ;inptVal2 on the stack
+
+         BR      calcansw    ;go to calcansw for calculating answer to expression
 
 ;;Code block for the negative number logic
 storeneg:STBA    negdigt1,d  ;store minus sign in negdigit
@@ -125,6 +122,7 @@ multiwh: LDBA    answer,d    ;load answer into A
          CPBA    0,i         ;compare the answer to 0
          BRGT    nonegate    ;if greater than 0 branch past negate
          NEGA                ;if answer is negative negate it
+
 nonegate:LDBA    charIn,d    ;load in next character
          CPBA    '\n',i      ;see if there is anymore input
          BREQ    output      ;if not branch to output
@@ -139,12 +137,11 @@ nonegate:LDBA    charIn,d    ;load in next character
          LDBA    multiop,d   ;load the second operator back into A
          CPBA    '+',i       ;check to see if the operation is addition
          BRNE    multisub    ;branch to the addition if that is the operation
+
 multiadd:LDWA    answer,d    ;load the answer back
          ADDA    inptVal3,d  ;add it to the next number
          STWA    answer,d    ;store it as the new answer
          BR      multiwh     ;branch back to while loop
-
-
 
 multisub:LDWA    answer,d    ;load the answer back
          SUBA    inptVal3,d  ;add it to the next number
@@ -165,13 +162,9 @@ sign4neg:STBA    multiop,d   ;load the negative sign into its place holder
          CPBA    '+',i       ;check if we need to add or subtract
          BRNE    multisub    ;branch to subtraction if that is the operation
          BR      multiadd    ;branch to addition if that is the operation
-              
-
-
 ;;end code block of multiple operations
 
-;(code for combining checkVal1 minus sign and checkVal2 digit into single number goes here)
-;(code for putting negative number in stack goes here)
+;code for putting negative number in stack
 postneg: ADDSP   3,i         ;pop negative single digit ;WARNING: Number of bytes allocated (3) not equal to number of bytes listed in trace tag (0).
          LDBA    0,s         ;A <---- negdigt2
          STBA    negdigt2,s  ;negdigt1 off the stack
@@ -184,11 +177,6 @@ postneg: ADDSP   3,i         ;pop negative single digit ;WARNING: Number of byte
          LDWA    1,s         ;A <---- inputVal1
          STWA    inptVal1,s  ;inptVal2 off the stack
          BR      calc        ;branch to calc to solve the expression
-;store double-digit number if double-digit number detected code block
-storedub:STBA    chekVal2,d  
-;(code for combining checkVal1 digit and checkVal2 digit into single number goes here)
-;(code for putting double-digit number in stack goes here)
-
 ;********************************************************************************
 
 
@@ -204,8 +192,7 @@ calcansw:ADDSP   2,i         ;pop single-digit #inptVal2 ;WARNING: inptVal2 not 
          LDWA    0,s         ;A = inptVal1
          STWA    inptVal1,s  ;inptVal1 off the stack
 
-;(code for adding numbers together goes here)
-;(remember that the first digit to be popped off the stack will be the right-hand number)
+;code for adding numbers together goes here
 calc:    LDBA    operator,d  ;A = value in operator
          CPBA    '+',i       ;is operator equal to + ?
          BRNE    subtcalc    ;no  ->go to subtcalc to subtract second number from first number
@@ -215,8 +202,7 @@ calc:    LDBA    operator,d  ;A = value in operator
          BR      multiwh     ;branch to check if there are multiple operations
          BR      output      ;Branch to output when finished
 
-;(code for subtracting first number from second number goes here)
-;(remember that the first digit to be popped off the stack will be the right-hand number)
+;code for subtracting first popped number from second popped number
 subtcalc:LDBA    operator,d  ;A = value in operator
          CPBA    '-',i       ;is operator equal to + ?
          BRNE    stopprog    ;no  ->go to subtcalc to subtract second number from first number
@@ -228,31 +214,25 @@ subtcalc:LDBA    operator,d  ;A = value in operator
 
 
 ;output postfix expression code block
-
-;(output first number code goes here)
-;(use delineator if negative or double-digit)
-
-;(output second number code goes here)
-;(use delineator if negative or double-digit)
 output:  STRO    postout,d   ;output postout to specify that it is a postout expression
          LDBA    negdigt1,d  ;A = negative symbol for first number
          CPBA    '-',i       ;checks if there is a negative symbol
          BRNE    skipneg1    ;if there isnt a negative then do not output
          STBA    charOut,d   ;output first negative symbol
+
 skipneg1:LDBA    chekVal1,d  ;load value 1
          STBA    charOut,d   ;output display 1
          LDBA    negdigt2,d  ;A = negative symbol for second number
          CPBA    '-',i       ;checks if there is a negative symbol
          BRNE    skipneg2    ;if there isnt a negative then do not output
          STBA    charOut,d   ;output second negative symbol
+
 skipneg2:LDBA    chekVal2,d  ;load value 2
          STBA    charOut,d   ;output display value 2
          LDBA    operator,d  ;A = operator for output display is postfix expression
          STBA    charOut,d   ;output display operator
          STRO    equals,d    ;output display equals sign
          DECO    answer,d    ;output display answer
-
-;(use delineator if negative or double-digit)
 
 ;********************************************************************************
 
@@ -261,17 +241,9 @@ stopprog:STOP                ;end program symbol
 ;begin .ASCII strings
 welcome: .ASCII  "Welcome to the Infix2Postfix Calculator.\nPlease enter a single digit, single operation equation using addition and subtraction only. Ex. a+b or a-b.\n\n\x00"
 
-
-
-
 equals:  .ASCII  "=\x00"     ;does not go to new line
 
-
-
-
-postout: .ASCII  "Postfix expression: \x00"
-
-
+postout: .ASCII  "Postfix expression: \x00"   ;does not go to new line
 
 
 ;end .ASCII strings
