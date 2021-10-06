@@ -91,7 +91,7 @@ negadd:  LDBA    charIn,d    ;A = input character for checking
          BR      chek2neg    ;branch to check the second number
 
 negsubt: CPBA    '-',i       ;is there a minus - operator?
-         BRNE    storedub    ;no ->go to storedub for storing double-digit number in stack 
+         BRNE    stopprog    ;no ->go to storedub for storing double-digit number in stack 
          STBA    operator,d  ;yes ->store operator
 
 chek2neg:LDBA    charIn,d    ;A = input character for checking
