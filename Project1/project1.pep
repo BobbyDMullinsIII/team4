@@ -58,13 +58,6 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          SUBA    0x0030,i    ;Subtract 0x0030 from chekVal2 to get it as a decimal value
          STWA    inptVal2,d  ;Store this as a word into inptVal2
 
-
-;CPBA    '',i       ;is there an empty character in input after previous charIn?
-;(im not sure what the real empty input character is, if anyone knows, please put it here)
-
-         BR      calcansw    ;yes  ->go to calcansw for calculating answer to expression
-         STBA    storedub,d  ;no ->go to storedub for double-digit input
-
 ;code block for pushing inptVal1 into stack
          SUBSP   2,i         ;push single-digit #inptVal1 ;WARNING: inptVal1 not specified in .EQUATE
          LDWA    inptVal1,d  ;A = inptVal1
@@ -74,6 +67,8 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
          SUBSP   2,i         ;push single-digit #inptVal2 ;WARNING: inptVal2 not specified in .EQUATE
          LDWA    inptVal2,d  ;A = inptVal2
          STWA    0,s         ;inptVal2 on the stack
+
+         BR      calcansw    ;go to calcansw for calculating answer to expression
 
 ;;Code block for the negative number logic
 storeneg:STBA    negdigt1,d  ;store minus sign in negdigit
