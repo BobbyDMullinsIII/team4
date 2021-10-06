@@ -48,7 +48,7 @@ chekaddi:LDBA    charIn,d    ;A = input character for checking
          BR      check2nd    ;branch to check2nd for checking second full number in input equation
 
 cheksubt:CPBA    '-',i       ;is there a minus - operator?
-         BRNE    storedub    ;no ->go to storedub for storing double-digit number in stack
+         BRNE    storedub    ;no ->go to storedub for storing double-digit number in stack 
          STBA    operator,d  ;yes ->store operator
 
 ;check second number(and checking if it is negative or double-digit) code block
@@ -72,7 +72,7 @@ check2nd:LDBA    charIn,d    ;A = input character for checking
 
          BR      calcansw    ;go to calcansw for calculating answer to expression
 
-;;Code block for the negative number logic
+;Code block for the negative number logic
 storeneg:STBA    negdigt1,d  ;store minus sign in negdigit
          LDBA    charIn,d    ;A = input digit
          STBA    chekVal1,d  ;store first number in checkVal1
@@ -91,7 +91,7 @@ negadd:  LDBA    charIn,d    ;A = input character for checking
          BR      chek2neg    ;branch to check the second number
 
 negsubt: CPBA    '-',i       ;is there a minus - operator?
-         BRNE    storedub    ;no ->go to storedub for storing double-digit number in stack
+         BRNE    storedub    ;no ->go to storedub for storing double-digit number in stack 
          STBA    operator,d  ;yes ->store operator
 
 chek2neg:LDBA    charIn,d    ;A = input character for checking
@@ -114,10 +114,9 @@ storneg2:STBA    negdigt2,d  ;store minus sign in negdigit
          STWA    inptVal2,d  ;store the new negative number
          NEGA                ;negate the accumulator to put it back into a postive state
          BR      calc        
+;end code block for negative numbers
 
-;;end code block for negative numbers
-
-;;Code for multiple operations
+;Code for multiple operations
 multiwh: LDBA    answer,d    ;load answer into A
          CPBA    0,i         ;compare the answer to 0
          BRGT    nonegate    ;if greater than 0 branch past negate
@@ -162,7 +161,7 @@ sign4neg:STBA    multiop,d   ;load the negative sign into its place holder
          CPBA    '+',i       ;check if we need to add or subtract
          BRNE    multisub    ;branch to subtraction if that is the operation
          BR      multiadd    ;branch to addition if that is the operation
-;;end code block of multiple operations
+;end code block of multiple operations
 
 ;code for putting negative number in stack
 postneg: ADDSP   3,i         ;pop negative single digit ;WARNING: Number of bytes allocated (3) not equal to number of bytes listed in trace tag (0).
@@ -177,6 +176,10 @@ postneg: ADDSP   3,i         ;pop negative single digit ;WARNING: Number of byte
          LDWA    1,s         ;A <---- inputVal1
          STWA    inptVal1,s  ;inptVal2 off the stack
          BR      calc        ;branch to calc to solve the expression
+
+;store double-digit number if double-digit number detected code block (Unfinished)
+storedub:STBA    chekVal2,d  
+
 ;********************************************************************************
 
 
