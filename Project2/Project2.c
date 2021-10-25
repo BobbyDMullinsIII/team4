@@ -8,6 +8,8 @@
 ********************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //End program
 char stop[] = "STOP";
@@ -68,9 +70,30 @@ int main()
 	printf("Please input a .c file to be processed\n");
 	scanf("%s", fileName);
 	
-	//code to make sure file is a .c file,is not Null, and is not harmful goes here.
+	//Code block checks if input file has an extension and if that extension '.c'
+	//If it is not, exit program
+	int correctExt = 0;
+	char *pointer = strrchr(fileName, '.');
 	
+	//Checks if there is an extension in the first place
+	//If there isn't, give error message and exit program.
+	if (pointer != 0)
+	{
+		//Checks if the extension is '.c'
+		//If it isn't, give error message and exit program.
+		if(strcmp(pointer, ".c") != 0)
+		{
+			printf("Input file has wrong file extension. Must be '.c'. Exiting Program.\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		printf("Input file does not have an extension. Must be '.c'. Exiting Program.\n");
+		exit(EXIT_FAILURE);
+	}
 	
+	printf("Input file has Correct file extension.\n");
 	printf("The file you selected was: %s \n", fileName);
 	printf("Is this the correct file? Y/N\n");
 	
