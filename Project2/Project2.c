@@ -1,3 +1,12 @@
+/********************************************************************************
+* Program Name: Project2.c
+* Programmer: Group 4 (Alexander Simpson, Austen Boda, Bobby Mullins, Ethan Morgan, Ty Seiber)
+* Class: CSCI 2160-001
+* Project: Project 2
+* Date: 2021-10-24
+* Purpose: Project2.c file for converting c code into Pep/9 code 
+********************************************************************************/
+
 #include <stdio.h>
 
 //End program
