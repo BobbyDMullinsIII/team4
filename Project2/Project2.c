@@ -12,7 +12,7 @@
 #include <string.h>
 
 //End program
-char stop[] = "STOP";
+char stop[]	= "STOP";
 
 //Branch commands
 char br[]	= "BR";
