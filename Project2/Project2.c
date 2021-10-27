@@ -15,36 +15,36 @@
 char stop[] = "STOP";
 
 //Branch commands
-char br[] 	= "BR";
+char br[]	= "BR";
 char brle[]	= "BRLE";
 char brlt[]	= "BRLT";
-char breq[] = "BREQ";
+char breq[]	= "BREQ";
 char brne[]	= "BRNE";
-char brge[] = "BRGE";
-char brgt[] = "BRGT";
+char brge[]	= "BRGE";
+char brgt[]	= "BRGT";
 
 //Main command
-char start[] = "MAIN";
+char start[]= "MAIN";
 
 //Loads and Stores
-char cpba[] = "CPBA";
+char cpba[]	= "CPBA";
 char lbwa[]	= "LDWA";
 char stwa[]	= "STWA";
 char stba[]	= "STBA";
 
 //Stack commands
-char addsp[]= "ADDSP";
-char subsp[]= "SUBSP";
+char addsp[]	= "ADDSP";
+char subsp[]	= "SUBSP";
 
 //Operations
 char adda[]	= "ADDA";
-char suba[] = "SUBA";
+char suba[]	= "SUBA";
 char anda[]	= "ANDA";
 char ora[]	= "ORA";
 char nota[]	= "NOTA";
 char nega[]	= "NEGA";
 char asla[]	= "ASLA";
-char asra[] = "ASRA";
+char asra[]	= "ASRA";
 char rola[]	= "ROLA";
 char rora[]	= "RORA";
 
