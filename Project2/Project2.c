@@ -58,77 +58,92 @@ char stro[]	= "STRO";
 
 int main()
 {
-	
-	char fileName[20];
-	char correctFile;
-	int fileContents;
-	
-	printf("*****************************\n");
-	printf("**********PROJECT 2**********\n");
-	printf("*****************************\n\n");
-	
-	printf("Please input a .c file to be processed\n");
-	scanf("%s", fileName);
-	
-	//Code block checks if input file has an extension and if that extension '.c'
-	//If it is not, exit program
-	int correctExt = 0;
-	char *pointer = strrchr(fileName, '.');
-	
-	//Checks if there is an extension in the first place
-	//If there isn't, give error message and exit program.
-	if (pointer != 0)
+	while(1)
 	{
-		//Checks if the extension is '.c'
-		//If it isn't, give error message and exit program.
-		if(strcmp(pointer, ".c") != 0)
+		char fileName[200];
+		char correctFile;
+		//int fileContents[];
+		char fileContents2[100000];
+		char *tokens;
+		int lineNumber = 0;
+		printf("*****************************\n");
+		printf("**********PROJECT 2**********\n");
+		printf("*****************************\n\n");
+	
+		printf("Please input a .c file to be processed\n");
+		scanf("%s", fileName);
+	
+		//Code block checks if input file has an extension and if that extension '.c'
+		//If it is not, exit program
+		int correctExt = 0;
+		char *pointer = strrchr(fileName, '.');
+	
+		//Checks if there is an extension in the first place
+		//If there isn't, give error message and exit program.
+		if (pointer != 0)
 		{
-			printf("Input file has wrong file extension. Must be '.c'. Exiting Program.\n");
+			//Checks if the extension is '.c'
+			//If it isn't, give error message and exit program.
+			if(strcmp(pointer, ".c") != 0)
+			{
+				printf("Input file has wrong file extension. Must be '.c'. Exiting Program.\n");
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			printf("Input file does not have an extension. Must be '.c'. Exiting Program.\n");
 			exit(EXIT_FAILURE);
 		}
-	}
-	else
-	{
-		printf("Input file does not have an extension. Must be '.c'. Exiting Program.\n");
-		exit(EXIT_FAILURE);
-	}
 	
-	printf("Input file has Correct file extension.\n");
-	printf("The file you selected was: %s \n", fileName);
-	printf("Is this the correct file? Y/N\n");
+		printf("Input file has Correct file extension.\n");
+		printf("The file you selected was: %s \n", fileName);
+		printf("Is this the correct file? Y/N\n");
 	
-	scanf(" %c", &correctFile);
-	
-	if (correctFile == 'Y'||correctFile == 'y')
-	{
-		FILE *file;
-		file = fopen(fileName, "r");
-		if(file == NULL) 
-		{
-			perror("Error in opening file");
-			return(-1);
-		}
+		scanf(" %c", &correctFile);
 		
-		
-		while(1)
+		//Checks to see if user input was Y or y
+		if (correctFile == 'Y'||correctFile == 'y')
 		{
-			fileContents = fgetc(file);
-			if ( feof(file) )
+			FILE *file;
+			file = fopen(fileName, "r");
+			if(file == NULL) 
 			{
-				break;
+				perror("Error in opening file");
+				return(-1);
 			}
-			printf("%c", fileContents);
+		
+		
+			while(1)
+			{
+				if (fgets(fileContents2, 100000, file) != NULL){
+					if ( feof(file) )
+					break;
+				
+				lineNumber++;
+				tokens = strtok(fileContents2, " \n");
+				while (tokens != NULL)
+				{
+					printf("%d: %s\n", lineNumber, tokens);
+					
+					tokens = strtok(NULL, " \n");
+					//break;
+				}
+				
+					//fileContents2 = fgetc(fileContents2, 100000, file);
+				}
+				
+				//printf("%c", fileContents);
+				
+			}
+			fclose(file);
+			printf("\n");
+			//printf("OK\n");
 		}
-		fclose(file);
-		
-		
-		return 0;
-		
-		//printf("OK\n");
+		//If correctFile is N or n then return 0 and exit out of while loop.
+		else if (correctFile == 'N'||correctFile == 'n')
+		{
+			printf("\n");
+		}
 	}
-	else if (correctFile == 'N'||correctFile == 'n')
-	{
-		return 0;
-	}
-	
 }
