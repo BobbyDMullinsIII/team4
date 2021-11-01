@@ -1,39 +1,50 @@
+/********************************************************************************
+* Program Name: Project2.c
+* Programmer: Group 4 (Alexander Simpson, Austen Boda, Bobby Mullins, Ethan Morgan, Ty Seiber)
+* Class: CSCI 2160-001
+* Project: Project 2
+* Date: 2021-10-24
+* Purpose: Project2.c file for converting c code into Pep/9 code 
+********************************************************************************/
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //End program
-char stop[] = "STOP";
+char stop[]	= "STOP";
 
 //Branch commands
-char br[] 	= "BR";
+char br[]	= "BR";
 char brle[]	= "BRLE";
 char brlt[]	= "BRLT";
-char breq[] = "BREQ";
+char breq[]	= "BREQ";
 char brne[]	= "BRNE";
-char brge[] = "BRGE";
-char brgt[] = "BRGT";
+char brge[]	= "BRGE";
+char brgt[]	= "BRGT";
 
 //Main command
-char start[] = "MAIN";
+char start[]= "MAIN";
 
 //Loads and Stores
-char cpba[] = "CPBA";
+char cpba[]	= "CPBA";
 char lbwa[]	= "LDWA";
 char stwa[]	= "STWA";
 char stba[]	= "STBA";
 
 //Stack commands
-char addsp[]= "ADDSP";
-char subsp[]= "SUBSP";
+char addsp[]	= "ADDSP";
+char subsp[]	= "SUBSP";
 
 //Operations
 char adda[]	= "ADDA";
-char suba[] = "SUBA";
+char suba[]	= "SUBA";
 char anda[]	= "ANDA";
 char ora[]	= "ORA";
 char nota[]	= "NOTA";
 char nega[]	= "NEGA";
 char asla[]	= "ASLA";
-char asra[] = "ASRA";
+char asra[]	= "ASRA";
 char rola[]	= "ROLA";
 char rora[]	= "RORA";
 
@@ -51,8 +62,10 @@ int main()
 	{
 		char fileName[200];
 		char correctFile;
-		int fileContents;
-	
+		//int fileContents[];
+		char fileContents2[100000];
+		char *tokens;
+		int lineNumber = 0;
 		printf("*****************************\n");
 		printf("**********PROJECT 2**********\n");
 		printf("*****************************\n\n");
@@ -60,13 +73,6 @@ int main()
 		printf("Please input a .c file to be processed\n");
 		scanf("%s", fileName);
 	
-<<<<<<< Updated upstream
-	//code to make sure file is a .c file,is not Null, and is not harmful goes here.
-	
-	
-	printf("The file you selected was: %s \n", fileName);
-	printf("Is this the correct file? Y/N\n");
-=======
 		//Code block checks if input file has an extension and if that extension '.c'
 		//If it is not, exit program
 		int correctExt = 0;
@@ -93,7 +99,6 @@ int main()
 		printf("Input file has Correct file extension.\n");
 		printf("The file you selected was: %s \n", fileName);
 		printf("Is this the correct file? Y/N\n");
->>>>>>> Stashed changes
 	
 		scanf(" %c", &correctFile);
 		
@@ -111,13 +116,25 @@ int main()
 		
 			while(1)
 			{
-				fileContents = fgetc(file);
-				if ( feof(file) )
-				{
+				if (fgets(fileContents2, 100000, file) != NULL){
+					if ( feof(file) )
 					break;
+				
+				lineNumber++;
+				tokens = strtok(fileContents2, " \n");
+				while (tokens != NULL)
+				{
+					printf("%d: %s\n", lineNumber, tokens);
+					
+					tokens = strtok(NULL, " \n");
+					//break;
 				}
-				printf("%c", fileContents);
-			
+				
+					//fileContents2 = fgetc(fileContents2, 100000, file);
+				}
+				
+				//printf("%c", fileContents);
+				
 			}
 			fclose(file);
 			printf("\n");
