@@ -19,7 +19,7 @@ char br[]	= "BR";
 char brle[]	= "BRLE";
 char brlt[]	= "BRLT";
 char breq[]	= "BREQ";
-char brne[]	= "BRNE";
+char brne[]	= "BRNE"; //Make these enums?
 char brge[]	= "BRGE";
 char brgt[]	= "BRGT";
 
@@ -31,6 +31,7 @@ char cpba[]	= "CPBA";
 char lbwa[]	= "LDWA";
 char stwa[]	= "STWA";
 char stba[]	= "STBA";
+char ldba[] = "LDBA";
 
 //Stack commands
 char addsp[]	= "ADDSP";
@@ -56,16 +57,29 @@ char deco[]	= "DECO";
 char hexo[]	= "HEXO";
 char stro[]	= "STRO";
 
+int subset_str(const char *needle, const char *hay)
+{
+	if(!hay)
+		return 0;
+	while(*needle){
+		if (!strchr(hay, *needle))
+			return 0;
+		needle++;
+	}
+	return 1;
+}
+
 int main()
 {
 	while(1)
 	{
 		char fileName[200];
 		char correctFile;
-		//int fileContents[];
-		char fileContents2[100000];
+		
+		char fileContents[100000];
 		char *tokens;
 		int lineNumber = 0;
+		
 		printf("*****************************\n");
 		printf("**********PROJECT 2**********\n");
 		printf("*****************************\n\n");
@@ -105,45 +119,46 @@ int main()
 		//Checks to see if user input was Y or y
 		if (correctFile == 'Y'||correctFile == 'y')
 		{
-			FILE *file;
-			file = fopen(fileName, "r");
-			if(file == NULL) 
+			FILE *fp;
+			long lSize;
+			char *buffer;
+
+			fp = fopen ( fileName , "r" );
+			if( !fp ) perror(fileName),exit(1);
+
+			fseek( fp , 0L , SEEK_END);
+			lSize = ftell( fp );
+			rewind( fp );
+
+			/* allocate memory for entire content */
+			buffer = calloc( 1, lSize+1 );
+			if( !buffer ) fclose(fp),fputs("memory alloc fails",stderr),exit(1);
+
+			/* copy the file into the buffer */
+			if( 1!=fread( buffer , lSize, 1 , fp) )
+				fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
+
+			if(subset_str("main()", buffer))
 			{
-				perror("Error in opening file");
-				return(-1);
+				printf("BR	MAIN\n");
 			}
-		
-		
-			while(1)
+			if(subset_str("printf", buffer))
 			{
-				if (fgets(fileContents2, 100000, file) != NULL){
-					if ( feof(file) )
-					break;
-				
-				lineNumber++;
-				tokens = strtok(fileContents2, " \n");
-				while (tokens != NULL)
-				{
-					printf("%d: %s\n", lineNumber, tokens);
-					
-					tokens = strtok(NULL, " \n");
-					//break;
-				}
-				
-					//fileContents2 = fgetc(fileContents2, 100000, file);
-				}
-				
-				//printf("%c", fileContents);
-				
+				printf("ASCII.	\n");
 			}
-			fclose(file);
-			printf("\n");
-			//printf("OK\n");
+				
+			
+
+			fclose(fp);
+			free(buffer);
 		}
+	
+		
 		//If correctFile is N or n then return 0 and exit out of while loop.
 		else if (correctFile == 'N'||correctFile == 'n')
 		{
 			printf("\n");
 		}
-	}
+	}	
+	
 }
