@@ -71,6 +71,10 @@ int subset_str(const char *needle, const char *hay)
 
 int main()
 {
+	printf("*****************************\n");
+	printf("**********PROJECT 2**********\n");
+	printf("*****************************\n\n");
+		
 	while(1)
 	{
 		char fileName[200];
@@ -79,12 +83,8 @@ int main()
 		char fileContents[100000];
 		char *tokens;
 		int lineNumber = 0;
-		
-		printf("*****************************\n");
-		printf("**********PROJECT 2**********\n");
-		printf("*****************************\n\n");
 	
-		printf("Please input a .c file to be processed\n");
+		printf("\nPlease input a .c file to be processed\n");
 		scanf("%s", fileName);
 	
 		//Code block checks if input file has an extension and if that extension '.c'
@@ -122,6 +122,7 @@ int main()
 			FILE *fp;
 			long lSize;
 			char *buffer;
+			int stringcounter = 1;	//Counts string variable counter to store .ASCII text for STRO output 
 
 			fp = fopen ( fileName , "r" );
 			if( !fp ) perror(fileName),exit(1);
@@ -138,13 +139,19 @@ int main()
 			if( 1!=fread( buffer , lSize, 1 , fp) )
 				fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
 
+			//If statements to go through each instruction type
+			//Converts "main()" to "BR	MAIN" instruction
 			if(subset_str("main()", buffer))
 			{
-				printf("BR	MAIN\n");
+				printf("\nBR	main\n\n");
+				printf("main:	");
 			}
+			//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII	string (counted up) stored in memory
 			if(subset_str("printf", buffer))
 			{
-				printf("ASCII.	\n");
+				printf("STRO	string%d,d\n", stringcounter);
+				printf("string%d	.ASCII	\"(Put string from printf statement in file here)\"\n", stringcounter);
+				stringcounter++;
 			}
 				
 			
