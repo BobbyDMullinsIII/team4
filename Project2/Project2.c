@@ -122,7 +122,10 @@ int main()
 			FILE *fp;
 			long lSize;
 			char *buffer;
-			int stringcounter = 1;	//Counts string variable counter to store .ASCII text for STRO output 
+			
+			int i;						//For loop variable
+			int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
+			char stringarray[50][200];	//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
 
 			fp = fopen ( fileName , "r" );
 			if( !fp ) perror(fileName),exit(1);
@@ -144,17 +147,34 @@ int main()
 			if(subset_str("main()", buffer))
 			{
 				printf("\nBR	main\n\n");
-				printf("main:	");
+				printf("main:");
 			}
-			//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII	string (counted up) stored in memory
+			//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
 			if(subset_str("printf", buffer))
 			{
-				printf("STRO	string%d,d\n", stringcounter);
-				printf("string%d	.ASCII	\"(Put string from printf statement in file here)\"\n", stringcounter);
-				stringcounter++;
-			}
+				//Code for storing string from inside "printf" statement inside stringarray goes here
+				char tempstring[200] = "test tempstring";
 				
+				//Stores input string variable in stringarray
+				strcpy(stringarray[stringcounter], tempstring); // valid
+
+				printf("	STRO	string%d,d\n", stringcounter);
+				stringcounter++;
+			}	
+			//Converts "return 0;" to "STOP" instruction
+			if(subset_str("return 0;", buffer))
+			{
+				printf("\n	stop\n\n");
+			}
 			
+			//Puts each of the .ASCII string variables between 'stop' and '.END' instructions
+			for(i = 0; i < stringcounter; i++)
+			{
+				printf("string%d	.ASCII	\"%s\"\n", i, stringarray[i]);
+			}
+			
+			//Required to signify end of code in Pep/9
+			printf("\n	.END\n");
 
 			fclose(fp);
 			free(buffer);
