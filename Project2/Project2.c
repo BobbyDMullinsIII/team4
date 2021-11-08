@@ -146,7 +146,7 @@ int main()
 			//Converts "main()" to "BR	MAIN" instruction
 			if(subset_str("main()", buffer))
 			{
-				printf("\nBR	main\n\n");
+				printf("\n	BR	main\n\n");
 				printf("main:");
 			}
 			//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
