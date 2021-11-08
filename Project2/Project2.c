@@ -123,7 +123,7 @@ int main()
 			long lSize;
 			char *buffer;
 			
-			int i;						//For loop variable
+			int i,j;					//For loop variables
 			int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
 			char stringarray[50][200];	//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
 
@@ -142,33 +142,79 @@ int main()
 			if( 1!=fread( buffer , lSize, 1 , fp) )
 				fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
 
-			//If statements to go through each instruction type
-			//Converts "main()" to "BR	MAIN" instruction
-			if(subset_str("main()", buffer))
+			char *token = strtok(buffer,"\n");
+			while(token != NULL)
 			{
-				printf("\n	BR	main\n\n");
-				printf("main:");
-			}
-			//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
-			if(subset_str("printf", buffer))
-			{
-				//Code for storing string from inside "printf" statement inside stringarray goes here
-				char tempstring[200] = "test tempstring";
+				printf("%s\n", token);
 				
-				//Stores input string variable in stringarray
-				strcpy(stringarray[stringcounter], tempstring); // valid
+				char *inside = strtok(token," ");
+				while(inside != NULL)
+				{
+					printf("%s\n", inside);
+					//If statements to go through each instruction type
+					//Converts "main()" to "BR	MAIN" instruction
+					if(strcmp(inside,"main()") == 0)
+					{
+						printf("\n	BR	main\n\n");
+						printf("main:");
+					}
+					//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
+					if(strcmp(inside,"printf(") == 0)
+					{
+						//Code for storing string from inside "printf" statement inside stringarray goes here
+						char tempstring[200] = "test tempstring";
+						
+						//Stores input string variable in stringarray
+						strcpy(stringarray[stringcounter], tempstring);
 
-				printf("	STRO	string%d,d\n", stringcounter);
-				stringcounter++;
-			}	
-			//Converts "return 0;" to "STOP" instruction
-			if(subset_str("return 0;", buffer))
-			{
-				printf("\n	stop\n\n");
+						printf("	STRO	string%d,d\n", stringcounter);
+						stringcounter++;
+					
+					}	
+					//Converts "return 0;" to "STOP" instruction
+					if(strcmp(inside,"return") == 0)
+					{
+						printf("\n	stop\n\n");
+					}
+					
+					inside = strtok(NULL, " ");
+				}
+				
+				token = strtok(NULL, "\n");
 			}
 			
+			/*
+			for(i = 0; i < 200; i++)
+			{
+				//If statements to go through each instruction type
+				//Converts "main()" to "BR	MAIN" instruction
+				if(subset_str("main()", buffer))
+				{
+					printf("\n	BR	main\n\n");
+					printf("main:");
+				}
+				//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
+				if(subset_str("printf", buffer))
+				{
+					//Code for storing string from inside "printf" statement inside stringarray goes here
+					char tempstring[200] = "test tempstring";
+					
+					//Stores input string variable in stringarray
+					strcpy(stringarray[stringcounter], tempstring); // valid
+
+					printf("	STRO	string%d,d\n", stringcounter);
+					stringcounter++;
+				}	
+				//Converts "return 0;" to "STOP" instruction
+				if(subset_str("return 0;", buffer))
+				{
+					printf("\n	stop\n\n");
+				}
+			}
+			*/
+			
 			//Puts each of the .ASCII string variables between 'stop' and '.END' instructions
-			for(i = 0; i < stringcounter; i++)
+			for(j = 0; j < stringcounter; j++)
 			{
 				printf("string%d	.ASCII	\"%s\"\n", i, stringarray[i]);
 			}
