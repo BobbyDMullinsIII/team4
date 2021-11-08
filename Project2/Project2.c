@@ -174,13 +174,17 @@ int main()
 					//Converts "return 0;" to "STOP" instruction
 					if(strcmp(inside,"return") == 0)
 					{
-						printf("\n	stop\n\n");
+						inside = strtok(NULL, " ");
+						if(strcmp(inside,"0;") == 0)
+						{
+							printf("\n	stop\n\n");
+						}
 					}
 					
-					inside = strtok(NULL, " ");
+					inside = strtok(NULL, " ");	//Goes to next token within same line unless end of line
 				}
 				
-				token = strtok(NULL, "\n");
+				token = strtok(NULL, "\n");	//Goes to next line unless end of file
 			}
 			
 			/*
