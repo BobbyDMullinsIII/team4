@@ -71,9 +71,9 @@ int subset_str(const char *needle, const char *hay)
 
 int main()
 {
-	printf("*****************************\n");
-	printf("**********PROJECT 2**********\n");
-	printf("*****************************\n\n");
+	printf(";*****************************\n");
+	printf(";**********PROJECT 2**********\n");
+	printf(";*****************************\n\n");
 		
 	while(1)
 	{
@@ -84,7 +84,7 @@ int main()
 		char *tokens;
 		int lineNumber = 0;
 	
-		printf("\nPlease input a .c file to be processed\n");
+		printf("\n;Please input a .c file to be processed\n");
 		scanf("%s", fileName);
 	
 		//Code block checks if input file has an extension and if that extension '.c'
@@ -100,19 +100,19 @@ int main()
 			//If it isn't, give error message and exit program.
 			if(strcmp(pointer, ".c") != 0)
 			{
-				printf("Input file has wrong file extension. Must be '.c'. Exiting Program.\n");
+				printf(";Input file has wrong file extension. Must be '.c'. Exiting Program.\n");
 				exit(EXIT_FAILURE);
 			}
 		}
 		else
 		{
-			printf("Input file does not have an extension. Must be '.c'. Exiting Program.\n");
+			printf(";Input file does not have an extension. Must be '.c'. Exiting Program.\n");
 			exit(EXIT_FAILURE);
 		}
 	
-		printf("Input file has Correct file extension.\n");
-		printf("The file you selected was: %s \n", fileName);
-		printf("Is this the correct file? Y/N\n");
+		printf(";Input file has Correct file extension.\n");
+		printf(";The file you selected was: %s \n", fileName);
+		printf(";Is this the correct file? Y/N\n");
 	
 		scanf(" %c", &correctFile);
 		
@@ -123,7 +123,7 @@ int main()
 			long lSize;
 			char *buffer;
 			
-			int i,j;					//For loop variables
+			int i;						//For loop variable
 			int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
 			char stringarray[50][200];	//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
 
@@ -142,15 +142,20 @@ int main()
 			if( 1!=fread( buffer , lSize, 1 , fp) )
 				fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
 
-			char *token = strtok(buffer,"\n");
+			//While loop tokenizes each line within file
+			char *end_str;
+			char *token = strtok_r(buffer, "\n", &end_str);
 			while(token != NULL)
 			{
-				printf("%s\n", token);
+				printf("%s\n", token);	//Outputs current 'token' string
 				
-				char *inside = strtok(token," ");
+				//While loop tokenizes each string of characters within line and checks each one for output
+				char *end_token;
+				char *inside = strtok_r(token, " ", &end_token);
 				while(inside != NULL)
 				{
-					printf("%s\n", inside);
+					printf("%s\n", inside);	//Outputs current 'inside' string
+					
 					//If statements to go through each instruction type
 					//Converts "main()" to "BR	MAIN" instruction
 					if(strcmp(inside,"main()") == 0)
@@ -181,44 +186,14 @@ int main()
 						}
 					}
 					
-					inside = strtok(NULL, " ");	//Goes to next token within same line unless end of line
+					inside = strtok_r(NULL, " ", &end_token);	//Goes to next token within same line unless end of line
 				}
 				
-				token = strtok(NULL, "\n");	//Goes to next line unless end of file
+				token = strtok_r(NULL, "\n", &end_str);	//Goes to next line unless end of file
 			}
-			
-			/*
-			for(i = 0; i < 200; i++)
-			{
-				//If statements to go through each instruction type
-				//Converts "main()" to "BR	MAIN" instruction
-				if(subset_str("main()", buffer))
-				{
-					printf("\n	BR	main\n\n");
-					printf("main:");
-				}
-				//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
-				if(subset_str("printf", buffer))
-				{
-					//Code for storing string from inside "printf" statement inside stringarray goes here
-					char tempstring[200] = "test tempstring";
-					
-					//Stores input string variable in stringarray
-					strcpy(stringarray[stringcounter], tempstring); // valid
-
-					printf("	STRO	string%d,d\n", stringcounter);
-					stringcounter++;
-				}	
-				//Converts "return 0;" to "STOP" instruction
-				if(subset_str("return 0;", buffer))
-				{
-					printf("\n	stop\n\n");
-				}
-			}
-			*/
 			
 			//Puts each of the .ASCII string variables between 'stop' and '.END' instructions
-			for(j = 0; j < stringcounter; j++)
+			for(i = 0; i < stringcounter; i++)
 			{
 				printf("string%d	.ASCII	\"%s\"\n", i, stringarray[i]);
 			}
