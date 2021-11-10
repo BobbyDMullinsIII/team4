@@ -61,6 +61,17 @@ char deco[]	= "DECO";
 char hexo[]	= "HEXO";
 char stro[]	= "STRO";
 
+int subset_str(const char *needle, const char *hay)
+{
+	if(!hay)
+		return 0;
+	while(*needle){
+		if (!strchr(hay, *needle))
+			return 0;
+		needle++;
+	}
+	return 1;
+}
 
 int main()
 {
@@ -106,20 +117,11 @@ int main()
 	{
 		//printf("%s\n", token);	//Outputs current 'token' string/char pointer for testing purposes
 		
-		
 		/********************************************************************************/
-		/* For some reason, this does not work, but does not crash program */
+		/* This only works if there is a maximum of 1 tab per each line */
 		/********************************************************************************/
-		//Converts "return 0;" to "STOP" instruction
-		if(strcmp(token,"return 0;") == 0)
-		{
-			printf("\n	stop\n\n");
-		}	
-		/********************************************************************************/
-		
 		//Goes to next token if line is determined to be comment or #include or #define directive
-		if((token[0] =='/' && token[1] =='/') 
-		|| (token[0] =='#'))
+		if(token[0] =='/' || token[1] =='/' || token[0] =='#')
 		{
 			token = strtok_r(NULL, "\n", &end_token);
 		}
@@ -151,25 +153,12 @@ int main()
 				&& inside[5] == 'f')
 				{
 					//Code for storing string from inside "printf" statement inside stringarray goes here
-					char currentline[256];	//Line to copy from full line token
-					char *tempstring;		//TempString to copy from line
-					char *end_temp;			//Required for strtok_r
-					
-					strcpy(currentline, token);
-									
-					tempstring = strtok_r(currentline, "\"", &end_temp); //Finds the first double quote in printf statment
-					tempstring = strtok_r(NULL, "\"", &end_temp); //Finds the second double quote in printf statment
-					
-					/********************************************************************************/
-					/* For some reason, this creates a segmentation fault */
-					/********************************************************************************/
-					//Stores input string variable in stringarray
+					char *tempstring;	//TempString to copy from line
+							
 					//strcpy(stringarray[stringcounter], tempstring);
-					/********************************************************************************/
 					
 					printf("	STRO	string%d,d\n", stringcounter);
-					stringcounter++;
-					
+					stringcounter++;			
 				}	
 				//Converts "scanf()" to (Input Pep/9 equivalent here)
 				if(inside[0] == 's' 
@@ -196,13 +185,18 @@ int main()
 					/* Converting c to Pep/9 code for declaring bool goes here */
 					/********************************************************************************/
 				}
-				
+				//Converts "return 0;" to "STOP" instruction
+				if(strcmp(inside,"return") == 0)
+				{	
+					printf("\n	stop\n\n");
+				}	
+
 				//Goes to next token within same line unless end of line
 				//(Has both space and tab characters as delimiters)
 				inside = strtok_r(NULL, " 	", &end_inside);
 															
 			}				
-		
+			
 			token = strtok_r(NULL, "\n", &end_token);	//Goes to next line unless end of file					
 		}
 	}
@@ -210,7 +204,7 @@ int main()
 	//Puts all of the .ASCII string variables stored in array between 'stop' and '.END' instructions
 	for(i = 0; i < stringcounter; i++)
 	{
-		printf("string%d	.ASCII	\"%s\"\n", i, stringarray[i]);
+		printf("string%d: .ASCII	\"%s\\x00\"\n", i, stringarray[i]);
 	}
 			
 	printf("\n	.END\n");	//Required to signify end of code in Pep/9
