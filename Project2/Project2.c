@@ -103,9 +103,14 @@ int main()
 		exit(1);
 	}
 
-	int i;						//For loop variable
+	int i,j;					//For loop variables
+	int boolcounter = 0;		//Counts bool variables for naming and output in Pep/9
+	int shortcounter = 0;		//Counts short variables for naming and output in Pep/9
 	int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
 	char stringarray[50][200];	//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
+	
+	//Prints initial branch to main because every program should have a main branch in Pep/9
+	printf("\n	BR	main\n\n");
 	
 	//Main token for going through each line in file 
 	//(Has newline character as delimiter)
@@ -141,8 +146,10 @@ int main()
 				//Converts "main()" to "BR	MAIN" instruction
 				if(strcmp(inside,"main()") == 0)
 				{
-					printf("\n	BR	main\n\n");
-					printf("main:");
+					printf("frstCalc:.WORD	0x0000 \n");	//First word variable for adding or subtracting two numbers
+					printf("scndCalc:.WORD	0x0000\n");		//Second word variable for adding or subtracting two numbers
+					
+					printf("\nmain:");	//Main branch before program after global data
 				}
 				//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
 				if(inside[0] == 'p' 
@@ -155,6 +162,25 @@ int main()
 					//Code for storing string from inside "printf" statement inside stringarray goes here
 					char *tempstring;	//TempString to copy from line
 							
+					/*
+					if(inside[7] == '\"')
+					{
+						for(j = 8; j <= strlen(inside); j++)
+						{
+							if(inside[j] == '\"')
+							{
+								lastQuote = j;
+							}
+						}
+					}
+					//printf("%d", lastQuote);
+					while(finalString > 7 && finalString < lastQuote)
+					{
+						string[j] == finalString;
+						j++;
+					}
+					*/
+					
 					//strcpy(stringarray[stringcounter], tempstring);
 					
 					printf("	STRO	string%d,d\n", stringcounter);
@@ -176,7 +202,39 @@ int main()
 				{
 					/********************************************************************************/
 					/* Converting c to Pep/9 code for declaring short goes here */
-					/********************************************************************************/
+					/********************************************************************************/	
+					
+					inside = strtok_r(NULL, " 	", &end_inside);//Go to next token
+					
+					//Checks last character in token to see if there is nothing else within the same line, such as an assignment variable
+					//If there is not, go to next token
+					if(inside[strlen(inside)-1] == ';')
+					{		
+						//Assigns short variable name and ends there to go to next line
+						printf("short%d:	.WORD	0x0000\n", shortcounter);
+					}
+					else
+					{		
+						//Assigns short variable name and goes to next token
+						printf("short%d:	.WORD	0x0000\n", shortcounter);
+						//inside = strtok_r(NULL, " 	", &end_inside);//Go to next token (THIS CAUSES A SEGMENTATION FAULT FOR SOME REASON)
+
+						//Checks if next token is an equal sign
+						if(strcmp(inside,"=") == 0)
+						{
+							inside = strtok_r(NULL, " 	", &end_inside);//Go to next token
+							
+							//Checks if first number has semicolon after it
+							if(inside[strlen(inside)-1] == ';')
+							{
+								
+							}
+								
+						}
+						
+					}
+										
+					shortcounter++;	//Increases counter for next short
 				}
 				//Converts "bool" to (Input Pep/9 equivalent here)
 				if(strcmp(inside,"bool") == 0)
@@ -184,6 +242,10 @@ int main()
 					/********************************************************************************/
 					/* Converting c to Pep/9 code for declaring bool goes here */
 					/********************************************************************************/
+					
+					printf("bool%d:	.WORD	0x0000\n", boolcounter);
+					
+					boolcounter++;	//Increases counter for next bool
 				}
 				//Converts "return 0;" to "STOP" instruction
 				if(strcmp(inside,"return") == 0)
