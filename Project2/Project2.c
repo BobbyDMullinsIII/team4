@@ -107,6 +107,7 @@ int main()
 	int j = 0;
 	int lastQuote;
 	int finalString;
+	char string[2000];
 	int boolcounter = 0;		//Counts bool variables for naming and output in Pep/9
 	int shortcounter = 0;		//Counts short variables for naming and output in Pep/9
 	int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
