@@ -12,6 +12,9 @@ short sb = 2;
 //Tests main functionality
 int main() 
 {
+	//Tests regular printf functionality
+	printf("Printf statement check string.");
+	
 	//Tests declaring integer inside main functionality
 	short sc;
 	
