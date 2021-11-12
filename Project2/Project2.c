@@ -103,7 +103,11 @@ int main()
 		exit(1);
 	}
 
-	int i,j;					//For loop variables
+	int i;						//For loop variable
+	int j = 0;
+	int lastQuote;
+	int finalString;
+	char string[2000];
 	int boolcounter = 0;		//Counts bool variables for naming and output in Pep/9
 	int shortcounter = 0;		//Counts short variables for naming and output in Pep/9
 	int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
@@ -162,7 +166,7 @@ int main()
 					//Code for storing string from inside "printf" statement inside stringarray goes here
 					char *tempstring;	//TempString to copy from line
 							
-					/*
+					
 					if(inside[7] == '\"')
 					{
 						for(j = 8; j <= strlen(inside); j++)
@@ -179,7 +183,7 @@ int main()
 						string[j] == finalString;
 						j++;
 					}
-					*/
+					
 					
 					//strcpy(stringarray[stringcounter], tempstring);
 					
