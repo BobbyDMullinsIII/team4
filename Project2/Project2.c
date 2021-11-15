@@ -103,8 +103,6 @@ int main()
 	int decicounter = 0;		//Counts number of DECI instructions
 	int deciarray[50];			//Array of indexes that integer DECI input corresponds to
 	
-	bool pair = 0;				//
-	
 	//Main token for going through each line in file 
 	//(Has newline character as delimiter)
 	char *end_token;	//Required for strtok_r
