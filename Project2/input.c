@@ -13,7 +13,7 @@ short sb = 2;
 int main() 
 {
 	//Tests regular printf functionality
-	printf("Printf statement check string.");
+	printf ("Printf statement check string.");
 	
 	//Tests declaring integer inside main functionality
 	short sc;
@@ -27,32 +27,32 @@ int main()
 	
 	//Tests scanf inputting integers functionality
 	short inptnum;
-	printf("Input an integer: ");
-	scanf("%hd", &inptnum);
+	printf ("Input an integer: ");
+	scanf ("%hd", &inptnum);
 	
 	//Tests addition functionality
 	short addnum = 5 + 7;
 	
 	//Tests printf outputting integers functionality
-	printf("Sum: %hd\n", addnum);
+	printf ("Sum: %hd\n", addnum);
 	
 	//Tests subtraction functionality
 	short subnum = 9 - 7;
 	
 	//Tests printf outputting integers functionality again
-	printf("Difference: %hd\n", subnum);
+	printf ("Difference: %hd\n", subnum);
 	
 	//Test AND functionality
 	bool andbool = (0 && 1);
-	printf("andbool: %hd\n", andbool);
+	printf ("andbool: %hd\n", andbool);
 	
 	//Test OR functionality
 	bool orbool = (0 || 1);
-	printf("orbool: %hd\n", orbool);
+	printf ("orbool: %hd\n", orbool);
 	
 	//Test NEG functionality
 	bool negbool = !(0 || 1);
-	printf("negbool: %hd\n", negbool);
+	printf ("negbool: %hd\n", negbool);
 	
 	
 	//Tests return statement functionality

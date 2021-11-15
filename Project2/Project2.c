@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /******************************/
 /*Pep/9 Instructions Reference*/
@@ -61,16 +62,15 @@ char deco[]	= "DECO";
 char hexo[]	= "HEXO";
 char stro[]	= "STRO";
 
-int subset_str(const char *needle, const char *hay)
-{
-	if(!hay)
-		return 0;
-	while(*needle){
-		if (!strchr(hay, *needle))
-			return 0;
-		needle++;
+char next_token(char* line) {
+	static char* p;
+	if (p == NULL)
+		p = line;
+	else {
+		char next_token = p[0];
+		p++;
+		return next_token;
 	}
-	return 1;
 }
 
 int main()
@@ -80,12 +80,15 @@ int main()
 	printf(";**********PROJECT 2**********\n");
 	printf(";*****************************\n");
 	
+	int LINE_NUMBER;
+	int LINE_CONTENT;
 	long lSize;		//Size of stdin to pass to buffer
 	char *buffer;	//Buffer to store contents of stdin
 	
+	
 	fseek(stdin, 0L, SEEK_END);
 	lSize = ftell(stdin);
-	rewind(stdin);
+	rewind(stdin);	//What rewind does is it sets the file position to the beginning of the file for the stream pointed to by stream.
 
 	//Allocated memory for all of the contents of the file and exits program if buffer is equal to 0
 	buffer = calloc(1, lSize + 1);
@@ -103,15 +106,11 @@ int main()
 		exit(1);
 	}
 
-	int i;						//For loop variable
-	int j = 0;
-	int lastQuote;
-	int finalString;
-	char string[2000];
-	int boolcounter = 0;		//Counts bool variables for naming and output in Pep/9
-	int shortcounter = 0;		//Counts short variables for naming and output in Pep/9
-	int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
-	char stringarray[50][200];	//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
+	int i, j = 0;					//For loop variables
+	int boolcounter = 0;			//Counts bool variables for naming and output in Pep/9
+	int shortcounter = 0;			//Counts short variables for naming and output in Pep/9
+	int stringcounter = 0;			//Counts string variable counter to store .ASCII text for STRO output 
+	char stringarray[50][200];		//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
 	
 	//Prints initial branch to main because every program should have a main branch in Pep/9
 	printf("\n	BR	main\n\n");
@@ -120,12 +119,11 @@ int main()
 	//(Has newline character as delimiter)
 	char *end_token;	//Required for strtok_r
 	char *token = strtok_r(buffer, "\n", &end_token);
+
 	
 	//While loop tokenizes each line within file
 	while(token != NULL)
-	{
-		//printf("%s\n", token);	//Outputs current 'token' string/char pointer for testing purposes
-		
+	{		
 		/********************************************************************************/
 		/* This only works if there is a maximum of 1 tab per each line */
 		/********************************************************************************/
@@ -139,8 +137,8 @@ int main()
 			//Inside token for going through each item on same line 
 			//(Has both space and tab characters as delimiters)
 			char *end_inside;	//Required for strtok_r
-			char *inside = strtok_r(token, " 	", &end_inside);
-		
+			char *inside = strtok_r(token, "	 ", &end_inside);
+
 			//While loop tokenizes each string of characters within line and checks each one for output
 			while(inside != NULL)
 			{
@@ -164,32 +162,46 @@ int main()
 				&& inside[5] == 'f')
 				{
 					//Code for storing string from inside "printf" statement inside stringarray goes here
-					char *tempstring;	//TempString to copy from line
-							
+					char tempstring[500];	//TempString to copy from line
 					
-					if(inside[7] == '\"')
+					int startingIndex = 8; //Will always start at index 8
+					int endingIndex = startingIndex; //This will get rid of extra characters that are not needed.
+					
+					i = 7;
+					int in = 1;
+					int index = 0;
+					while (in == 1)
 					{
-						for(j = 8; j <= strlen(inside); j++)
+						//First quote
+						if (token[i] == '"')
 						{
-							if(inside[j] == '\"')
+							token[i] = '0'; //setting the char at index i = to a char that will not pass the if check, and this is to get all strings.
+							i++;
+							while (token[i] != '"') //Will run through loop as long as the index of token at i != '"'.
 							{
-								lastQuote = j;
+								tempstring[index] = token[i]; //Copies token at index i into tempstring.
+								index++;
+								i++;
+							}	//Will break out of loop as soon as char i is = to a '"' and enter the if below.
+							
+							//Second quote
+							if (token[i] == '"')
+							{
+								token[i] = '0';	//setting the char at index i = to a char that will not pass the if check, and this is to get all strings.
+								i++;
 							}
+							in = 0;
 						}
+						i++;
 					}
-					//printf("%d", lastQuote);
-					while(finalString > 7 && finalString < lastQuote)
-					{
-						string[j] == finalString;
-						j++;
-					}
-					
-					
-					//strcpy(stringarray[stringcounter], tempstring);
-					
+					//Copy tempstring to stringarray and will clear the tempstring.
+					strcpy(stringarray[stringcounter],tempstring);
+					memset(tempstring, '\0', index);
+
 					printf("	STRO	string%d,d\n", stringcounter);
-					stringcounter++;			
-				}	
+					stringcounter++;
+				}
+
 				//Converts "scanf()" to (Input Pep/9 equivalent here)
 				if(inside[0] == 's' 
 				&& inside[1] == 'c' 
@@ -200,6 +212,8 @@ int main()
 					/********************************************************************************/
 					/* Converting c to Pep/9 code for scanning from input or console goes here */	
 					/********************************************************************************/
+					
+					printf("	DECI	short%d,d\n", shortcounter - 1);
 				}	
 				//Converts "short" to (Input Pep/9 equivalent here)
 				if(strcmp(inside,"short") == 0)
@@ -260,7 +274,6 @@ int main()
 				//Goes to next token within same line unless end of line
 				//(Has both space and tab characters as delimiters)
 				inside = strtok_r(NULL, " 	", &end_inside);
-															
 			}				
 			
 			token = strtok_r(NULL, "\n", &end_token);	//Goes to next line unless end of file					
@@ -270,9 +283,16 @@ int main()
 	//Puts all of the .ASCII string variables stored in array between 'stop' and '.END' instructions
 	for(i = 0; i < stringcounter; i++)
 	{
-		printf("string%d: .ASCII	\"%s\\x00\"\n", i, stringarray[i]);
+		
+		printf("\nstring%d: .ASCII	\"\\n%s\\x00\"\n", i, stringarray[i]);
+		
 	}
-			
+	
+	//Test to see what buffer has
+	//printf(buffer); //Here buffer contains #include <stdio.h>
+	
+	//printf(linecounter);
+
 	printf("\n	.END\n");	//Required to signify end of code in Pep/9
 	
 	free(buffer);	//Free the buffer before ending program
