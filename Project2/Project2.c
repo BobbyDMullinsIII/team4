@@ -36,7 +36,7 @@ char cpba[]	= "CPBA";
 char ldwa[]	= "LDWA";
 char stwa[]	= "STWA";
 char stba[]	= "STBA";
-char ldba[] = "LDBA";
+char ldba[]	= "LDBA";
 
 //Stack commands
 char addsp[]	= "ADDSP";
@@ -62,16 +62,6 @@ char deco[]	= "DECO";
 char hexo[]	= "HEXO";
 char stro[]	= "STRO";
 
-char next_token(char* line) {
-	static char* p;
-	if (p == NULL)
-		p = line;
-	else {
-		char next_token = p[0];
-		p++;
-		return next_token;
-	}
-}
 
 int main()
 {
@@ -80,11 +70,8 @@ int main()
 	printf(";**********PROJECT 2**********\n");
 	printf(";*****************************\n");
 	
-	int LINE_NUMBER;
-	int LINE_CONTENT;
 	long lSize;		//Size of stdin to pass to buffer
 	char *buffer;	//Buffer to store contents of stdin
-	
 	
 	fseek(stdin, 0L, SEEK_END);
 	lSize = ftell(stdin);
@@ -106,14 +93,17 @@ int main()
 		exit(1);
 	}
 
-	int i, j = 0;					//For loop variables
-	int boolcounter = 0;			//Counts bool variables for naming and output in Pep/9
-	int shortcounter = 0;			//Counts short variables for naming and output in Pep/9
-	int stringcounter = 0;			//Counts string variable counter to store .ASCII text for STRO output 
-	char stringarray[50][200];		//Array of strings (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
+	int i, j = 0;				//For loop variables
+	int boolcounter = 0;		//Counts bool variables for naming and output in Pep/9
+	int shortcounter = 0;		//Counts short variables for naming and output in Pep/9
 	
-	//Prints initial branch to main because every program should have a main branch in Pep/9
-	printf("\n	BR	main\n\n");
+	int stringcounter = 0;		//Counts string variable counter to store .ASCII text for STRO output 
+	char stringarray[50][200];	//Array of ascii (2d array of chars in c) for storing all .ASCII variables to put at the end of Pep/9 program
+	
+	int decicounter = 0;		//Counts number of DECI instructions
+	int deciarray[50];			//Array of indexes that integer DECI input corresponds to
+	
+	bool pair = 0;				//
 	
 	//Main token for going through each line in file 
 	//(Has newline character as delimiter)
@@ -141,18 +131,7 @@ int main()
 
 			//While loop tokenizes each string of characters within line and checks each one for output
 			while(inside != NULL)
-			{
-				//printf("%s\n", inside);	//Outputs current 'inside' string/char pointer for testing purposes
-					
-				//If statements to go through each instruction type
-				//Converts "main()" to "BR	MAIN" instruction
-				if(strcmp(inside,"main()") == 0)
-				{
-					printf("frstCalc:.WORD	0x0000 \n");	//First word variable for adding or subtracting two numbers
-					printf("scndCalc:.WORD	0x0000\n");		//Second word variable for adding or subtracting two numbers
-					
-					printf("\nmain:");	//Main branch before program after global data
-				}
+			{			
 				//Converts "printf()" to "STRO	string#,d" instruction and a corresponding .ASCII string
 				if(inside[0] == 'p' 
 				&& inside[1] == 'r'
@@ -197,8 +176,6 @@ int main()
 					//Copy tempstring to stringarray and will clear the tempstring.
 					strcpy(stringarray[stringcounter],tempstring);
 					memset(tempstring, '\0', index);
-
-					printf("	STRO	string%d,d\n", stringcounter);
 					stringcounter++;
 				}
 
@@ -209,11 +186,8 @@ int main()
 				&& inside[3] == 'n'
 				&& inside[4] == 'f')
 				{
-					/********************************************************************************/
-					/* Converting c to Pep/9 code for scanning from input or console goes here */	
-					/********************************************************************************/
-					
-					printf("	DECI	short%d,d\n", shortcounter - 1);
+					//Assigns array to index number of short that was input
+					deciarray[decicounter] = shortcounter - 1;
 				}	
 				//Converts "short" to (Input Pep/9 equivalent here)
 				if(strcmp(inside,"short") == 0)
@@ -228,13 +202,12 @@ int main()
 					//If there is not, go to next token
 					if(inside[strlen(inside)-1] == ';')
 					{		
-						//Assigns short variable name and ends there to go to next line
-						printf("short%d:	.WORD	0x0000\n", shortcounter);
+						shortcounter++;
 					}
 					else
 					{		
 						//Assigns short variable name and goes to next token
-						printf("short%d:	.WORD	0x0000\n", shortcounter);
+						//printf("short%d:	.WORD	0x0000\n", shortcounter);
 						//inside = strtok_r(NULL, " 	", &end_inside);//Go to next token (THIS CAUSES A SEGMENTATION FAULT FOR SOME REASON)
 
 						//Checks if next token is an equal sign
@@ -251,7 +224,7 @@ int main()
 						}
 						
 					}
-										
+						
 					shortcounter++;	//Increases counter for next short
 				}
 				//Converts "bool" to (Input Pep/9 equivalent here)
@@ -261,15 +234,9 @@ int main()
 					/* Converting c to Pep/9 code for declaring bool goes here */
 					/********************************************************************************/
 					
-					printf("bool%d:	.WORD	0x0000\n", boolcounter);
-					
+					//printf("bool%d:	.WORD	0x0000\n", boolcounter);		
 					boolcounter++;	//Increases counter for next bool
 				}
-				//Converts "return 0;" to "STOP" instruction
-				if(strcmp(inside,"return") == 0)
-				{	
-					printf("\n	stop\n\n");
-				}	
 
 				//Goes to next token within same line unless end of line
 				//(Has both space and tab characters as delimiters)
@@ -280,20 +247,55 @@ int main()
 		}
 	}
 	
-	//Puts all of the .ASCII string variables stored in array between 'stop' and '.END' instructions
-	for(i = 0; i < stringcounter; i++)
+	
+	/********************************************************************************/
+	/*Pep/9 Output Code Block*/
+	/********************************************************************************/
+	//Prints initial branch to main because every program should have a main branch in Pep/9
+	printf("\n	BR	main\n");
+	
+	//Puts all of the short variables stored between 'BR main' and 'main' instructions
+	for(i = 0; i <  shortcounter; i++)
 	{
-		
-		printf("\nstring%d: .ASCII	\"\\n%s\\x00\"\n", i, stringarray[i]);
-		
+		printf("\nshort%d:	.WORD	0x0000 ", i);	
 	}
 	
-	//Test to see what buffer has
-	//printf(buffer); //Here buffer contains #include <stdio.h>
+		
+	//Puts all of the bool variables stored between 'BR main' and 'main' instructions
+	for(i = 0; i <  boolcounter; i++)
+	{
+		printf("\nbool%d:	.WORD	0x0000 ", i);
+	}
 	
-	//printf(linecounter);
+	printf("\nfrstCalc:.WORD	0x0000\n");	//First word variable for adding or subtracting two numbers
+	printf("scndCalc:.WORD	0x0000\n");		//Second word variable for adding or subtracting two numbers
+			
+	printf("\nmain:");	//Main branch before program after global data
+	
+	j = 0;
+	//Prints out Pep/9 STRO instructions to match .ASCII strings
+	for(i = 0; i <  stringcounter; i++)
+	{
+		if(i == deciarray[j])
+		{
+			printf("	DECI	short%d,d\n", deciarray[j]);
+			j++;
+		}
+		
+		printf("	STRO	string%d,d\n",  i);
+	}
+	
+	printf("\n	stop\n");	//stop instruction to end executing code
+	
+	//Puts all of the .ASCII string variables stored in stringarray between 'stop' and '.END' instructions
+	for(i = 0; i <  stringcounter; i++)
+	{
+		printf("\nstring%d: .ASCII	\"\\n%s\\x00\"\n", i, stringarray[i]);	
+	}
 
 	printf("\n	.END\n");	//Required to signify end of code in Pep/9
+	/********************************************************************************/
+	
 	
 	free(buffer);	//Free the buffer before ending program
 	
