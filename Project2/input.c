@@ -24,35 +24,38 @@ int main()
 	//Tests declaring and assigning to integer inside main functionality
 	short sd = 4;
 	
-	
+	//printf("%hd", sd);
+
 	//Tests scanf inputting integers functionality
-	short inptnum;
-	printf ("Input an integer: ");
-	scanf ("%hd", &inptnum);
+	short inputnum;
+	short inputnum2;
+	printf ("Input two integers: ");
+	scanf ("%hd", &inputnum);
+	scanf ("%hd", &inputnum2);
 	
 	//Tests addition functionality
-	short addnum = 5 + 7;
+	short addnum = inputnum + inputnum2;
 	
 	//Tests printf outputting integers functionality
 	printf ("Sum: %hd\n", addnum);
 	
 	//Tests subtraction functionality
-	short subnum = 9 - 7;
+	short subnum = inputnum - inputnum2;
 	
 	//Tests printf outputting integers functionality again
 	printf ("Difference: %hd\n", subnum);
 	
 	//Test AND functionality
-	bool andbool = (0 && 1);
-	printf ("andbool: %hd\n", andbool);
+	short andnum = (inputnum && inputnum2);
+	printf ("and: %hd\n", andnum);
 	
 	//Test OR functionality
-	bool orbool = (0 || 1);
-	printf ("orbool: %hd\n", orbool);
+	short ornum = (inputnum || inputnum2);
+	printf ("or: %hd\n", ornum);
 	
 	//Test NEG functionality
-	bool negbool = !(0 || 1);
-	printf ("negbool: %hd\n", negbool);
+	short negnum = !(inputnum);
+	printf ("neg: %hd\n");
 	
 	
 	//Tests return statement functionality
