@@ -159,15 +159,16 @@ int main()
 								if (token[i] == '%')
 								{
 									i++;
+									if (token[i] == 'h')
+									{
+										i++;
+										if (token[i] == 'd')
+										{
+											i++;
+										}
+									}
 								}
-								if (token[i] == 'h')
-								{
-									i++;
-								}
-								if (token[i] == 'd')
-								{
-									i++;
-								}
+								
 								tempstring[index] = token[i]; //Copies token at index i into tempstring.
 								index++;
 								i++;
