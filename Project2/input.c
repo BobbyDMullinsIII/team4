@@ -34,13 +34,13 @@ int main()
 	scanf ("%hd", &inputnum2);
 	
 	//Tests addition functionality
-	short addnum = 5 + 7;
+	short addnum = inputnum + inputnum2;
 	
 	//Tests printf outputting integers functionality
 	printf ("Sum: %hd\n", addnum);
 	
 	//Tests subtraction functionality
-	short subnum = 9 - 7;
+	short subnum = inputnum - inputnum2;
 	
 	//Tests printf outputting integers functionality again
 	printf ("Difference: %hd\n", subnum);
