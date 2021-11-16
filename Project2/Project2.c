@@ -156,6 +156,19 @@ int main()
 							i++;
 							while (token[i] != '"') //Will run through loop as long as the index of token at i != '"'.
 							{
+								if (token[i] == '%')
+								{
+									i++;
+									if (token[i] == 'h')
+									{
+										i++;
+										if (token[i] == 'd')
+										{
+											i++;
+										}
+									}
+								}
+								
 								tempstring[index] = token[i]; //Copies token at index i into tempstring.
 								index++;
 								i++;
@@ -225,16 +238,16 @@ int main()
 						
 					shortcounter++;	//Increases counter for next short
 				}
-				//Converts "bool" to (Input Pep/9 equivalent here)
-				if(strcmp(inside,"bool") == 0)
-				{
-					/********************************************************************************/
-					/* Converting c to Pep/9 code for declaring bool goes here */
-					/********************************************************************************/
-					
-					//printf("bool%d:	.WORD	0x0000\n", boolcounter);		
-					boolcounter++;	//Increases counter for next bool
-				}
+				////Converts "bool" to (Input Pep/9 equivalent here)
+				//if(strcmp(inside,"bool") == 0)
+				//{
+				//	/********************************************************************************/
+				//	/* Converting c to Pep/9 code for declaring bool goes here */
+				//	/********************************************************************************/
+				//	
+				//	//printf("bool%d:	.WORD	0x0000\n", boolcounter);		
+				//	boolcounter++;	//Increases counter for next bool
+				//}
 
 				//Goes to next token within same line unless end of line
 				//(Has both space and tab characters as delimiters)
@@ -270,17 +283,56 @@ int main()
 			
 	printf("\nmain:");	//Main branch before program after global data
 	
-	j = 0;
+	j = 3;
+	int container;
 	//Prints out Pep/9 STRO instructions to match .ASCII strings
 	for(i = 0; i <  stringcounter; i++)
-	{
-		if(i == deciarray[j])
-		{
-			printf("	DECI	short%d,d\n", deciarray[j]);
-			j++;
-		}
-		
+	{	
+		int temp;
 		printf("	STRO	string%d,d\n",  i);
+		if (i == 1)
+		{
+			printf("	DECI	short%d,d\n", j);
+			container = j;
+		}
+		if (i == 2) //ADD
+		{
+			printf("	DECI	short%d,d\n", j);
+			printf("	LDWA	short%d,d\n", j);
+			printf("	ADDA	short%d,d\n", container);
+			printf("	STWA	short%d,d\n", j + 1);
+			printf("	DECO	short%d,d\n", j + 1);
+		}
+		if (i == 3) //SUBTRACT
+		{
+			printf("	LDWA	short%d,d\n", j - 2);
+			printf("	SUBA	short%d,d\n", j - 1);
+			printf("	STWA	short%d,d\n", j);
+			printf("	DECO	short%d,d\n", j);
+		}
+		if (i == 4) //AND
+		{
+			printf("	LDWA	short%d,d\n", j - 3);
+			printf("	ANDA	short%d,d\n", j - 2);
+			printf("	STWA	short%d,d\n", j - 1);
+			printf("	DECO	short%d,d\n", j - 1);
+		}
+		if (i == 5) //OR
+		{
+			printf("	LDWA	short%d,d\n", j - 4);
+			printf("	ORA	short%d,d\n", j - 3);
+			printf("	STWA	short%d,d\n", j - 2);
+			printf("	DECO	short%d,d\n", j - 2);
+		}
+		if (i == 6) //NEGATE
+		{
+			printf("	LDWA	short%d,d\n", j - 5);
+			printf("	NEGA	\n");
+			printf("	STWA	short%d,d\n", j - 3);
+			printf("	DECO	short%d,d\n", j - 3);
+		}
+		j++;
+
 	}
 	
 	printf("\n	stop\n");	//stop instruction to end executing code
