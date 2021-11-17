@@ -225,12 +225,6 @@ int main()
 						if(strcmp(inside,"=") == 0)
 						{
 							inside = strtok_r(NULL, " 	", &end_inside);//Go to next token
-							
-							//Checks if first number has semicolon after it
-							if(inside[strlen(inside)-1] == ';')
-							{
-								
-							}
 								
 						}
 						
